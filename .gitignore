@@ -1,0 +1,31 @@
+# Chaves e Senhas
+.env
+secrets.toml
+.streamlit/secrets.toml
+
+# Ambientes Virtuais
+venv/
+.venv/
+env/
+ENV/
+
+# Python / Compilação
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDEs e Editores
+.vscode/
+.idea/
+*.swp
+
+# Logs e Banco Local
+*.log
+*.sqlite3
+
+# Arquivos de Sistema Operacional
+.DS_Store
+Thumbs.db
+db_config_supadb.txt
+recoverycode.txt

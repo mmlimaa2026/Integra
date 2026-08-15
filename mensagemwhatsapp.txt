@@ -1,0 +1,1 @@
+"Bem vindo à IPAN, {nome_pessoa}! Meu nome é {nome_usuario_logado} e sou membro do Ministério Novos Membros da IPAN. Fique com meu contato para que eu possa orar por você e te orientar para o batismo nas águas. Deus te abençoe!"
