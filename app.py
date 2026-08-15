@@ -72,7 +72,7 @@ if 'menu_option' not in st.session_state:
 is_logged = st.session_state.logged_in
 
 # ==============================================================================
-# CSS CUSTOMIZADO RESPONSIVO (CORREÇÃO DE LEGIBILIDADE, BOTÕES E COMBO MOBILE)
+# CSS CUSTOMIZADO RESPONSIVO (CORREÇÃO DEFINITIVA DO MENU E COMBO MOBILE)
 # ==============================================================================
 st.markdown(f"""
     <style>
@@ -138,17 +138,20 @@ st.markdown(f"""
         height: auto !important;
     }}
 
-    /* Container do Menu Superior */
+    /* --------------------------------------------------------------------------
+       CONTAINER DA BARRA SUPERIOR (FORÇANDO FUNDO CLARO E LIMPO)
+       -------------------------------------------------------------------------- */
     div[data-testid="column"]:nth-of-type(2) {{
         background-color: #F8F9FA !important;
-        border: 1px solid #E0E0E0 !important;
+        border: 1px solid #DEE2E6 !important;
         border-radius: 12px !important;
         padding: 8px 12px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        min-height: 52px !important;
-        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05) !important;
+        min-height: 55px !important;
+        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.04) !important;
+        margin-bottom: 10px !important;
     }}
 
     div[data-testid="column"]:nth-of-type(2) div[data-testid="stHorizontalBlock"] {{
@@ -158,7 +161,7 @@ st.markdown(f"""
     }}
 
     /* --------------------------------------------------------------------------
-       BOTÕES DO MENU (PILLS) - FUNDO CLARO E TEXTO ESCURO (NÃO PRETOS/ESCUROS)
+       BOTÕES DO MENU (PILLS) - FUNDO CLARO E TEXTO ESCURO NITIDO
        -------------------------------------------------------------------------- */
     div[data-testid="stPills"] button,
     div[data-testid="stPills"] [role="option"],
@@ -168,8 +171,8 @@ st.markdown(f"""
         color: #212529 !important; /* Texto escuro bem legível */
         border: 1px solid #CED4DA !important;
         border-radius: 20px !important;
-        padding: 6px 14px !important;
-        font-size: 0.88rem !important;
+        padding: 6px 12px !important;
+        font-size: 0.85rem !important;
         font-weight: 600 !important;
         margin-right: 4px !important;
         white-space: nowrap !important;
@@ -198,7 +201,9 @@ st.markdown(f"""
         color: #FFFFFF !important;
     }}
 
-    /* Dropdown de Usuário */
+    /* --------------------------------------------------------------------------
+       DROPDOWN / COMBO DE USUÁRIO - FUNDO CLARO E TEXTO ESCURO
+       -------------------------------------------------------------------------- */
     div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] > div {{
         background-color: #E9ECEF !important;
         border: 1px solid #CED4DA !important;
@@ -209,8 +214,8 @@ st.markdown(f"""
 
     div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] span {{
         color: #212529 !important;
-        font-weight: 500 !important;
-        font-size: 0.88rem !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
     }}
 
     div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] svg {{
@@ -226,18 +231,17 @@ st.markdown(f"""
     }}
 
     /* --------------------------------------------------------------------------
-       CORREÇÃO CRUCIAL DA MENSAGEM DE BOAS-VINDAS (TEXTO PRETO SOBRE FUNDO CLARO)
+       GARANTINDO TEXTO PRETO/ESCURO NOS TEXTOS GERAIS E CARTÕES
        -------------------------------------------------------------------------- */
     .element-container, .stMarkdown, p, span, h1, h2, h3, div {{
         color: #212529;
     }}
 
-    /* Garante legibilidade em containers de cartões/container interno */
     div[data-testid="stVerticalBlock"] div[data-testid="stContainer"] {{
         color: #212529 !important;
     }}
 
-    /* Inputs de texto */
+    /* Inputs de formulário padrão */
     .stTextInput label {{
         color: #000000 !important;
         font-weight: 600 !important;
@@ -256,14 +260,13 @@ st.markdown(f"""
        -------------------------------------------------------------------------- */
     @media (max-width: 768px) {{
         div[data-testid="stMainBlockContainer"], .block-container {{
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
-            padding-top: 0.5rem !important;
+            padding-left: 0.4rem !important;
+            padding-right: 0.4rem !important;
+            padding-top: 0.4rem !important;
             width: 100% !important;
             max-width: 100% !important;
         }}
 
-        /* Redimensionamento e quebra limpa para títulos no mobile */
         h1 {{
             font-size: 1.3rem !important;
             line-height: 1.25 !important;
@@ -284,15 +287,14 @@ st.markdown(f"""
             line-height: 1.35 !important;
         }}
 
-        /* Ajuste do cabeçalho no mobile */
         div[data-testid="column"]:nth-of-type(2) {{
-            padding: 6px 8px !important;
+            padding: 6px 6px !important;
         }}
 
         div[data-testid="stPills"] button,
         div[data-testid="stPills"] [role="option"] {{
-            padding: 4px 10px !important;
-            font-size: 0.78rem !important;
+            padding: 4px 8px !important;
+            font-size: 0.75rem !important;
         }}
     }}
 
@@ -691,11 +693,9 @@ def dashboard_screen():
             render_menu()
             
         with nav_col2:
-            login_val = user_info.get('Login', 'N/A')
-            
-            # Combo enxuta exibindo estritamente o ícone/perfil para otimizar espaço no mobile
+            # Combo enxuta exibindo apenas o ícone de perfil no mobile para otimizar espaço
             user_options = [
-                f"👤 {login_val}",
+                "👤",
                 "🚪 Sair"
             ]
             
