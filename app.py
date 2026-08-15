@@ -12,15 +12,15 @@ import re
 import pandas as pd
 import logging
 
-# Configuração de Logs
+# Configuração de Logging
 logger = logging.getLogger(__name__)
 
-# Importação dos módulos da aplicação
+# Importação das telas dos módulos
 from acolhimentos import acolhimento_screen
 from home import home_screen
 from administracao import administracao_screen
 
-# Configuração da Página no Streamlit
+# Configuração da página Streamlit
 st.set_page_config(
     page_title="Integra | Sistema de Novos Membros",
     page_icon="🔗",
@@ -28,9 +28,8 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Functions de Configuração
 def get_db_config():
-    """Recupera as credenciais do banco de dados do secrets.toml"""
+    """Recupera configurações de banco de dados do st.secrets."""
     try:
         return st.secrets["postgres"]
     except KeyError:
@@ -38,13 +37,13 @@ def get_db_config():
         return None
 
 def get_email_config():
-    """Recupera as credenciais de e-mail do secrets.toml"""
+    """Recupera configurações de e-mail do st.secrets."""
     try:
         return st.secrets["email"]
     except KeyError:
         return None
 
-# Inicialização do Estado da Sessão (session_state)
+# Inicialização de variáveis no session_state
 if 'db_connected' not in st.session_state:
     st.session_state.db_connected = False
 if 'conn' not in st.session_state:
@@ -73,11 +72,11 @@ if 'menu_option' not in st.session_state:
 is_logged = st.session_state.logged_in
 
 # ==============================================================================
-# CSS CUSTOMIZADO RESPONSIVO (DESKTOP & MOBILE)
+# CSS CUSTOMIZADO RESPONSIVO COM FIX PARA BOTÕES E TÍTULOS NO MOBILE
 # ==============================================================================
 st.markdown(f"""
     <style>
-    /* Reset e Layout Base */
+    /* Reset Geral */
     html, body, [data-testid="stApp"] {{
         margin: 0 !important;
         padding: 0 !important;
@@ -98,7 +97,7 @@ st.markdown(f"""
         background-color: #FFFFFF !important;
     }}
 
-    /* Container Principal */
+    /* Container Principal da View */
     div[data-testid="stAppViewContainer"] {{
         display: {"flex !important" if not is_logged else "block !important"};
         flex-direction: {"column !important" if not is_logged else "initial !important"};
@@ -108,9 +107,9 @@ st.markdown(f"""
         width: 100% !important;
     }}
 
-    /* Adaptação de Largura (Login vs Dashboard) */
+    /* Ajuste do Container de Conteúdo */
     div[data-testid="stMainBlockContainer"], .block-container {{
-        padding-top: 1rem !important;
+        padding-top: 0.5rem !important;
         padding-bottom: 1rem !important;
         padding-left: {"1rem !important" if not is_logged else "1.5rem !important"};
         padding-right: {"1rem !important" if not is_logged else "1.5rem !important"};
@@ -123,7 +122,7 @@ st.markdown(f"""
         align-items: {"center !important" if not is_logged else "stretch !important"};
     }}
 
-    /* Centralização da Logo */
+    /* Logo em Login e Pós-Login */
     div[data-testid="stImage"] {{
         display: flex !important;
         justify-content: {"center !important" if not is_logged else "flex-start !important"};
@@ -135,20 +134,15 @@ st.markdown(f"""
     div[data-testid="stImage"] > img {{
         display: block !important;
         margin: {"0 auto !important" if not is_logged else "0 !important"};
-        max-width: {"260px !important" if not is_logged else "100% !important"};
+        max-width: {"260px !important" if not is_logged else "180px !important"};
         height: auto !important;
     }}
 
-    /* Formulário de Login */
-    div[data-testid="stForm"] {{
-        width: 100% !important;
-    }}
-
-    /* Barra Superior de Navegação */
+    /* Container do Menu Superior */
     div[data-testid="column"]:nth-of-type(2) {{
         background-color: #1A1A1A !important;
         border-radius: 12px !important;
-        padding: 6px 12px !important;
+        padding: 8px 12px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
@@ -162,21 +156,34 @@ st.markdown(f"""
         gap: 0.5rem !important;
     }}
 
-    /* Botões do Menu (Pills) */
+    /* --------------------------------------------------------------------------
+       CORREÇÃO DOS BOTÕES DO MENU (PILLS) - FORÇA TEXTO BRANCO NO INATIVO
+       -------------------------------------------------------------------------- */
+    div[data-testid="stPills"] button,
+    div[data-testid="stPills"] [role="option"],
     div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] button,
     div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] [role="option"] {{
         background-color: #2D2D2D !important;
-        color: #FFFFFF !important;
+        color: #FFFFFF !important; /* Força texto totalmente branco no botão inativo */
         border: 1px solid #444444 !important;
         border-radius: 20px !important;
-        padding: 4px 12px !important;
-        font-size: 0.85rem !important;
-        font-weight: 500 !important;
+        padding: 6px 14px !important;
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
         margin-right: 4px !important;
         white-space: nowrap !important;
     }}
 
-    /* Item Selecionado no Menu */
+    /* Garante cor branca nos spans dentro do botão inativo */
+    div[data-testid="stPills"] button span,
+    div[data-testid="stPills"] [role="option"] span,
+    div[data-testid="stPills"] p {{
+        color: #FFFFFF !important;
+    }}
+
+    /* Item Ativo (Selecionado) no Menu */
+    div[data-testid="stPills"] button[aria-selected="true"],
+    div[data-testid="stPills"] [role="option"][aria-selected="true"],
     div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] button[aria-selected="true"],
     div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] [role="option"][aria-selected="true"] {{
         background-color: #FFFFFF !important;
@@ -185,7 +192,13 @@ st.markdown(f"""
         border-color: #FFFFFF !important;
     }}
 
-    /* Menu de Usuário (Dropdown) */
+    div[data-testid="stPills"] button[aria-selected="true"] span,
+    div[data-testid="stPills"] [role="option"][aria-selected="true"] span,
+    div[data-testid="stPills"] button[aria-selected="true"] p {{
+        color: #000000 !important;
+    }}
+
+    /* Dropdown de Usuário */
     div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] > div {{
         background-color: #2D2D2D !important;
         border: 1px solid #444444 !important;
@@ -197,7 +210,7 @@ st.markdown(f"""
     div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] span {{
         color: #FFFFFF !important;
         font-weight: 500 !important;
-        font-size: 0.85rem !important;
+        font-size: 0.88rem !important;
     }}
 
     div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] svg {{
@@ -212,7 +225,7 @@ st.markdown(f"""
         display: none !important;
     }}
 
-    /* Campos de Input */
+    /* Inputs de texto */
     .stTextInput label {{
         color: #000000 !important;
         font-weight: 600 !important;
@@ -226,25 +239,54 @@ st.markdown(f"""
         padding: 8px 12px !important;
     }}
 
-    /* REGRA MEDIA QUERY PARA DISPOSITIVOS MÓVEIS (ANDROID / IOS) */
+    /* --------------------------------------------------------------------------
+       REGRAS EXCLUSIVAS DE RESPONSIVIDADE MOBILE (ANDROID / IOS)
+       -------------------------------------------------------------------------- */
     @media (max-width: 768px) {{
         div[data-testid="stMainBlockContainer"], .block-container {{
             padding-left: 0.5rem !important;
             padding-right: 0.5rem !important;
+            padding-top: 0.5rem !important;
             width: 100% !important;
             max-width: 100% !important;
         }}
 
-        /* Torna os textos e cards visíveis com cor escura no mobile */
-        p, span, label, h1, h2, h3, h4, h5, h6 {{
-            color: #1A1A1A !important;
-            word-break: break-word !important;
+        /* Redimensionamento e quebra de palavra para títulos no mobile */
+        h1 {{
+            font-size: 1.4rem !important;
+            line-height: 1.3 !important;
+            word-wrap: break-word !important;
+            hyphens: auto !important;
         }}
 
-        /* Ajuste dos Botões no Mobile */
-        .stButton button {{
-            font-size: 0.85rem !important;
-            padding: 6px 10px !important;
+        h2 {{
+            font-size: 1.2rem !important;
+            line-height: 1.3 !important;
+        }}
+
+        h3 {{
+            font-size: 1.05rem !important;
+        }}
+
+        p, span, li {{
+            font-size: 0.9rem !important;
+            line-height: 1.4 !important;
+        }}
+
+        /* Ajuste do cabeçalho no mobile */
+        div[data-testid="column"]:nth-of-type(2) {{
+            padding: 6px 8px !important;
+        }}
+
+        div[data-testid="stPills"] button,
+        div[data-testid="stPills"] [role="option"] {{
+            padding: 4px 10px !important;
+            font-size: 0.8rem !important;
+        }}
+
+        /* Correção para containers flex/cards não comprimirem no Android */
+        div[data-testid="stVerticalBlock"] > div {{
+            width: 100% !important;
         }}
     }}
 
@@ -254,14 +296,10 @@ st.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
-# Helper para Criptografia de Senhas
 def hash_password(password):
-    """Gera hash SHA-256 para verificação de senhas"""
     return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
-# Conectividade com Banco de Dados
 def connect_to_database():
-    """Abre conexão com o PostgreSQL usando os dados de secrets"""
     db_config = get_db_config()
     if not db_config:
         return None, "Configuração de Secrets do banco de dados não foi encontrada."
@@ -281,7 +319,6 @@ def connect_to_database():
         return None, "Falha ao conectar com o servidor do banco de dados."
 
 def get_table_structure(conn):
-    """Mapeia colunas da tabela SolicitacaoAcesso"""
     try:
         cursor = conn.cursor()
         cursor.execute("""
@@ -313,7 +350,6 @@ def get_table_structure(conn):
         return None, None
 
 def buscar_usuario_por_login(conn, login):
-    """Busca o usuário pelo nome de login"""
     try:
         cursor = conn.cursor()
         cursor.execute('''
@@ -332,7 +368,6 @@ def buscar_usuario_por_login(conn, login):
         return None
 
 def autenticar_usuario(conn, login, senha):
-    """Valida credenciais do usuário"""
     usuario = buscar_usuario_por_login(conn, login)
     
     if not usuario:
@@ -344,9 +379,7 @@ def autenticar_usuario(conn, login, senha):
     else:
         return None, "Senha incorreta."
 
-# Notificação por E-mail
 def enviar_email_notificacao(nome, email, celular):
-    """Envia e-mail de notificação de novas solicitações de acesso"""
     email_config = get_email_config()
     
     if not email_config:
@@ -404,9 +437,7 @@ def enviar_email_notificacao(nome, email, celular):
         logger.error(f"Erro ao enviar e-mail: {e}")
         return False, "Erro ao processar o envio de e-mail."
 
-# Gravação no Banco de Dados
 def gravar_solicitacao(conn, nome, email, celular):
-    """Insere registro de solicitação no PostgreSQL"""
     try:
         cursor = conn.cursor()
         data_atual = datetime.now()
@@ -467,7 +498,6 @@ def gravar_solicitacao(conn, nome, email, celular):
         return False, "Erro interno ao gravar solicitação."
 
 def logout():
-    """Encerra a sessão atual do usuário"""
     if st.session_state.conn:
         try:
             st.session_state.conn.close()
@@ -481,7 +511,6 @@ def logout():
     st.session_state.menu_option = "Home"
     st.rerun()
 
-# Mapeamento do Menu de Navegação
 MENU_ICONS = {
     "Home": "🏠 Home",
     "Acolhimento": "🤝 Acolhimento",
@@ -491,7 +520,6 @@ MENU_ICONS = {
 }
 
 def render_menu():
-    """Renderiza a barra de navegação no topo"""
     user_info = st.session_state.get('user', {}) or {}
     eh_admin = user_info.get('Adm') == 'S'
 
@@ -526,9 +554,7 @@ def render_menu():
         st.session_state.menu_option = escolha
         st.rerun()
 
-# Tela de Login
 def login_screen():
-    """Exibe o formulário de login e de solicitação de acesso"""
     if os.path.exists("LogoIntegra.png"):
         st.image("LogoIntegra.png")
     else:
@@ -636,24 +662,17 @@ def login_screen():
                     else:
                         st.error(f"❌ {resultado}")
 
-# Telas Secundárias (Placeholders)
-def classes_screen(): 
-    st.info("📌 Módulo de Classes em desenvolvimento.")
+def classes_screen(): st.info("📌 Módulo de Classes em desenvolvimento.")
+def relatorios_screen(): st.info("📌 Módulo de Relatórios em desenvolvimento.")
 
-def relatorios_screen(): 
-    st.info("📌 Módulo de Relatórios em desenvolvimento.")
-
-# Dashboard Principal
 def dashboard_screen():
-    """Gerencia as telas após a autenticação do usuário"""
     user_info = st.session_state.user
     
-    # Cabeçalho da aplicação
     col_logo, col_navbar = st.columns([1.5, 8.5], vertical_alignment="center")
     
     with col_logo:
         if os.path.exists("LogoIntegra.png"):
-            st.image("LogoIntegra.png", width=180)
+            st.image("LogoIntegra.png")
         else:
             st.markdown("""
                 <h2 style="color: #000000 !important; font-size: 1.5rem !important; margin: 0 !important; font-weight: 800 !important;">🔗 Integra</h2>
@@ -696,9 +715,8 @@ def dashboard_screen():
             if selected_user_action == "🚪 Sair":
                 logout()
 
-    st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
 
-    # Roteamento de Telas
     if st.session_state.menu_option == "Home":
         home_screen()
     elif st.session_state.menu_option == "Acolhimento":
@@ -710,7 +728,6 @@ def dashboard_screen():
     elif st.session_state.menu_option == "Administração" and (user_info.get('Adm') == 'S'):
         administracao_screen()
 
-# Função de Entrada Principal
 def main():
     if st.session_state.logged_in and st.session_state.user:
         dashboard_screen()
