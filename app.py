@@ -72,7 +72,7 @@ if 'menu_option' not in st.session_state:
 is_logged = st.session_state.logged_in
 
 # ==============================================================================
-# CSS CUSTOMIZADO RESPONSIVO COM FIX PARA BOTÕES E TÍTULOS NO MOBILE
+# CSS CUSTOMIZADO RESPONSIVO (CORREÇÃO DE LEGIBILIDADE, BOTÕES E COMBO MOBILE)
 # ==============================================================================
 st.markdown(f"""
     <style>
@@ -111,8 +111,8 @@ st.markdown(f"""
     div[data-testid="stMainBlockContainer"], .block-container {{
         padding-top: 0.5rem !important;
         padding-bottom: 1rem !important;
-        padding-left: {"1rem !important" if not is_logged else "1.5rem !important"};
-        padding-right: {"1rem !important" if not is_logged else "1.5rem !important"};
+        padding-left: {"1rem !important" if not is_logged else "1rem !important"};
+        padding-right: {"1rem !important" if not is_logged else "1rem !important"};
         width: {"60vw !important" if not is_logged else "100% !important"};
         max-width: {"550px !important" if not is_logged else "100% !important"};
         min-width: {"320px !important" if not is_logged else "100% !important"};
@@ -140,14 +140,15 @@ st.markdown(f"""
 
     /* Container do Menu Superior */
     div[data-testid="column"]:nth-of-type(2) {{
-        background-color: #1A1A1A !important;
+        background-color: #F8F9FA !important;
+        border: 1px solid #E0E0E0 !important;
         border-radius: 12px !important;
         padding: 8px 12px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
         min-height: 52px !important;
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15) !important;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05) !important;
     }}
 
     div[data-testid="column"]:nth-of-type(2) div[data-testid="stHorizontalBlock"] {{
@@ -157,15 +158,15 @@ st.markdown(f"""
     }}
 
     /* --------------------------------------------------------------------------
-       CORREÇÃO DOS BOTÕES DO MENU (PILLS) - FORÇA TEXTO BRANCO NO INATIVO
+       BOTÕES DO MENU (PILLS) - FUNDO CLARO E TEXTO ESCURO (NÃO PRETOS/ESCUROS)
        -------------------------------------------------------------------------- */
     div[data-testid="stPills"] button,
     div[data-testid="stPills"] [role="option"],
     div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] button,
     div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] [role="option"] {{
-        background-color: #2D2D2D !important;
-        color: #FFFFFF !important; /* Força texto totalmente branco no botão inativo */
-        border: 1px solid #444444 !important;
+        background-color: #E9ECEF !important;
+        color: #212529 !important; /* Texto escuro bem legível */
+        border: 1px solid #CED4DA !important;
         border-radius: 20px !important;
         padding: 6px 14px !important;
         font-size: 0.88rem !important;
@@ -174,11 +175,10 @@ st.markdown(f"""
         white-space: nowrap !important;
     }}
 
-    /* Garante cor branca nos spans dentro do botão inativo */
     div[data-testid="stPills"] button span,
     div[data-testid="stPills"] [role="option"] span,
     div[data-testid="stPills"] p {{
-        color: #FFFFFF !important;
+        color: #212529 !important;
     }}
 
     /* Item Ativo (Selecionado) no Menu */
@@ -186,35 +186,35 @@ st.markdown(f"""
     div[data-testid="stPills"] [role="option"][aria-selected="true"],
     div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] button[aria-selected="true"],
     div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] [role="option"][aria-selected="true"] {{
-        background-color: #FFFFFF !important;
-        color: #000000 !important;
+        background-color: #212529 !important;
+        color: #FFFFFF !important;
         font-weight: bold !important;
-        border-color: #FFFFFF !important;
+        border-color: #212529 !important;
     }}
 
     div[data-testid="stPills"] button[aria-selected="true"] span,
     div[data-testid="stPills"] [role="option"][aria-selected="true"] span,
     div[data-testid="stPills"] button[aria-selected="true"] p {{
-        color: #000000 !important;
+        color: #FFFFFF !important;
     }}
 
     /* Dropdown de Usuário */
     div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] > div {{
-        background-color: #2D2D2D !important;
-        border: 1px solid #444444 !important;
-        color: #FFFFFF !important;
+        background-color: #E9ECEF !important;
+        border: 1px solid #CED4DA !important;
+        color: #212529 !important;
         border-radius: 8px !important;
         min-height: 38px !important;
     }}
 
     div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] span {{
-        color: #FFFFFF !important;
+        color: #212529 !important;
         font-weight: 500 !important;
         font-size: 0.88rem !important;
     }}
 
     div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] svg {{
-        fill: #FFFFFF !important;
+        fill: #212529 !important;
     }}
 
     div[data-testid="stPills"] {{
@@ -225,6 +225,18 @@ st.markdown(f"""
         display: none !important;
     }}
 
+    /* --------------------------------------------------------------------------
+       CORREÇÃO CRUCIAL DA MENSAGEM DE BOAS-VINDAS (TEXTO PRETO SOBRE FUNDO CLARO)
+       -------------------------------------------------------------------------- */
+    .element-container, .stMarkdown, p, span, h1, h2, h3, div {{
+        color: #212529;
+    }}
+
+    /* Garante legibilidade em containers de cartões/container interno */
+    div[data-testid="stVerticalBlock"] div[data-testid="stContainer"] {{
+        color: #212529 !important;
+    }}
+
     /* Inputs de texto */
     .stTextInput label {{
         color: #000000 !important;
@@ -233,9 +245,9 @@ st.markdown(f"""
     
     .stTextInput input {{
         background-color: #FFFFFF !important;
-        border: 1.5px solid #000000 !important;
+        border: 1.5px solid #CED4DA !important;
         border-radius: 8px !important;
-        color: #000000 !important;
+        color: #212529 !important;
         padding: 8px 12px !important;
     }}
 
@@ -251,26 +263,25 @@ st.markdown(f"""
             max-width: 100% !important;
         }}
 
-        /* Redimensionamento e quebra de palavra para títulos no mobile */
+        /* Redimensionamento e quebra limpa para títulos no mobile */
         h1 {{
-            font-size: 1.4rem !important;
-            line-height: 1.3 !important;
+            font-size: 1.3rem !important;
+            line-height: 1.25 !important;
             word-wrap: break-word !important;
-            hyphens: auto !important;
         }}
 
         h2 {{
-            font-size: 1.2rem !important;
+            font-size: 1.1rem !important;
             line-height: 1.3 !important;
         }}
 
         h3 {{
-            font-size: 1.05rem !important;
+            font-size: 1.0rem !important;
         }}
 
         p, span, li {{
-            font-size: 0.9rem !important;
-            line-height: 1.4 !important;
+            font-size: 0.88rem !important;
+            line-height: 1.35 !important;
         }}
 
         /* Ajuste do cabeçalho no mobile */
@@ -281,12 +292,7 @@ st.markdown(f"""
         div[data-testid="stPills"] button,
         div[data-testid="stPills"] [role="option"] {{
             padding: 4px 10px !important;
-            font-size: 0.8rem !important;
-        }}
-
-        /* Correção para containers flex/cards não comprimirem no Android */
-        div[data-testid="stVerticalBlock"] > div {{
-            width: 100% !important;
+            font-size: 0.78rem !important;
         }}
     }}
 
@@ -559,11 +565,11 @@ def login_screen():
         st.image("LogoIntegra.png")
     else:
         st.markdown("""
-            <h1 style="color: #000000; font-size: 2.2rem; font-weight: 800; text-align: center; margin: 0;">🔗 Integra</h1>
-            <p style="color: #333333; text-align: center; font-size: 1rem; margin-bottom: 0.5rem;">Sistema de Novos Membros</p>
+            <h1 style="color: #212529; font-size: 2.2rem; font-weight: 800; text-align: center; margin: 0;">🔗 Integra</h1>
+            <p style="color: #495057; text-align: center; font-size: 1rem; margin-bottom: 0.5rem;">Sistema de Novos Membros</p>
         """, unsafe_allow_html=True)
         
-    st.markdown('<p style="color: #555555; text-align: center; font-size: 0.95rem; margin-top: 0.2rem; margin-bottom: 1.5rem;">Entre com seu login e senha abaixo:</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color: #495057; text-align: center; font-size: 0.95rem; margin-top: 0.2rem; margin-bottom: 1.5rem;">Entre com seu login e senha abaixo:</p>', unsafe_allow_html=True)
     
     with st.form("login_form", clear_on_submit=False):
         login = st.text_input("Login", max_chars=50, placeholder="Digite seu login", key="login_input")
@@ -675,32 +681,21 @@ def dashboard_screen():
             st.image("LogoIntegra.png")
         else:
             st.markdown("""
-                <h2 style="color: #000000 !important; font-size: 1.5rem !important; margin: 0 !important; font-weight: 800 !important;">🔗 Integra</h2>
+                <h2 style="color: #212529 !important; font-size: 1.5rem !important; margin: 0 !important; font-weight: 800 !important;">🔗 Integra</h2>
             """, unsafe_allow_html=True)
             
     with col_navbar:
-        nav_col1, nav_col2 = st.columns([7.5, 2.5], vertical_alignment="center")
+        nav_col1, nav_col2 = st.columns([7.8, 2.2], vertical_alignment="center")
         
         with nav_col1:
             render_menu()
             
         with nav_col2:
             login_val = user_info.get('Login', 'N/A')
-            nome_val = user_info.get('NomeUsuario', 'N/A')
-            email_val = user_info.get('Email', user_info.get('E-mail', 'N/A'))
             
-            db_cfg = get_db_config()
-            if db_cfg and 'host' in db_cfg:
-                host_str = str(db_cfg['host'])
-                server_name = host_str[:10]
-            else:
-                server_name = "N/A"
-            
+            # Combo enxuta exibindo estritamente o ícone/perfil para otimizar espaço no mobile
             user_options = [
                 f"👤 {login_val}",
-                f"Nome: {nome_val}",
-                f"E-mail: {email_val}",
-                f"🖥️ Servidor: {server_name}",
                 "🚪 Sair"
             ]
             
