@@ -112,11 +112,11 @@ if not st.session_state.is_mobile:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO: REMOÇÃO TOTAL DA FAIXA CINZA E RESET DAS CAMADAS DE INPUT
+# CSS CUSTOMIZADO: CORREÇÃO DEFINITIVA DO FUNDO CINZA CLARO NOS CAMPOS LOGIN E SENHA
 # ==============================================================================
 st.markdown("""
     <style>
-    /* 1. FORÇA TEMA CLARO E ANULA SOBREPOSIÇÕES NATIVAS DO NAVEGADOR */
+    /* 1. FORÇA TEMA CLARO NO NAVEGADOR E LAYOUT */
     :root {
         color-scheme: light !important;
         --text-color: #212529 !important;
@@ -171,7 +171,7 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
     }
 
-    /* 2. RÓTULOS (LABELS) TOTALMENTE PRETO (#212529) */
+    /* 2. RÓTULOS (LABELS) EM PRETO (#212529) */
     div[data-testid="stTextInput"] label,
     div[data-testid="stTextInput"] label p,
     div[data-testid="stWidgetLabel"],
@@ -185,19 +185,17 @@ st.markdown("""
         opacity: 1 !important;
     }
 
-    /* 3. ESTRUTURA DOS CAMPOS DE TEXTO (ELIMINAÇÃO DE FAIXAS E OVERLAYS CINZAS) */
+    /* 3. CAMPOS DE LOGIN E SENHA: FUNDO CINZA CLARO FIXO (#F0F2F6) */
     div[data-testid="stTextInput"] {
         width: 100% !important;
         margin-bottom: 0.8rem !important;
     }
 
-    div[data-testid="stTextInput"] > div {
-        width: 100% !important;
-        background-color: transparent !important;
-    }
-
-    /* Caixas de input principal com contorno único e fundo limpo */
-    div[data-testid="stTextInput"] div[data-baseweb="input"] {
+    /* Força o fundo cinza claro em TODAS as camadas internas dos inputs */
+    div[data-testid="stTextInput"] div[data-baseweb="input"],
+    div[data-testid="stTextInput"] div[data-baseweb="base-input"],
+    div[data-testid="stTextInput"] div[data-baseweb="input"] > div,
+    div[data-testid="stTextInput"] div[data-baseweb="base-input"] > div {
         background-color: #F0F2F6 !important;
         background: #F0F2F6 !important;
         border: 1px solid #CED4DA !important;
@@ -206,57 +204,37 @@ st.markdown("""
         min-height: 44px !important;
         max-height: 44px !important;
         width: 100% !important;
-        padding: 0px 10px !important;
-        margin: 0 !important;
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        box-sizing: border-box !important;
         box-shadow: none !important;
-        overflow: hidden !important; /* Previne vazamento de div interna */
-        position: relative !important;
     }
 
-    /* RESET UNIVERSAL DOS SUBCONTÊINERES INTERNOS (Remove caixas/faixas sobrepostas) */
-    div[data-testid="stTextInput"] div[data-baseweb="input"] *,
-    div[data-testid="stTextInput"] div[data-baseweb="input"] div,
-    div[data-testid="stTextInput"] div[data-baseweb="base-input"] {
-        background-color: transparent !important;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        outline: none !important;
+    /* Estado de foco/hover mantendo fundo cinza claro */
+    div[data-testid="stTextInput"] div[data-baseweb="input"]:focus-within,
+    div[data-testid="stTextInput"] div[data-baseweb="input"]:hover,
+    div[data-testid="stTextInput"] div[data-baseweb="input"]:active {
+        background-color: #F0F2F6 !important;
+        background: #F0F2F6 !important;
+        border-color: #ADB5BD !important;
+        box-shadow: 0 0 0 1px #ADB5BD !important;
     }
 
-    /* ELIMINAÇÃO DE PSEUDO-ELEMENTOS (Responsáveis por faixas extras e marcadores) */
-    div[data-testid="stTextInput"] div[data-baseweb="input"]::before,
-    div[data-testid="stTextInput"] div[data-baseweb="input"]::after,
-    div[data-testid="stTextInput"] input::before,
-    div[data-testid="stTextInput"] input::after {
-        display: none !important;
-        content: "" !important;
-        background: transparent !important;
-    }
-
-    /* Campo de digitação de texto `<input>` */
+    /* Campo de texto interno `<input>` */
     div[data-testid="stTextInput"] input {
-        background-color: transparent !important;
-        background: transparent !important;
+        background-color: #F0F2F6 !important;
+        background: #F0F2F6 !important;
         color: #212529 !important;
         font-size: 0.95rem !important;
         height: 100% !important;
         width: 100% !important;
         border: none !important;
         outline: none !important;
-        padding: 0 !important;
+        padding: 0 10px !important;
         margin: 0 !important;
         box-shadow: none !important;
         -webkit-text-fill-color: #212529 !important;
         color-scheme: light !important;
     }
 
-    /* CORREÇÃO DO AUTOFILL DO CHROME MOBILE (Fundo escuro/faixa amarela ao selecionar credencial) */
+    /* Força cinza claro no Autofill do Chrome / Navegadores Desktop & Mobile */
     input:-webkit-autofill,
     input:-webkit-autofill:hover, 
     input:-webkit-autofill:focus,
@@ -268,7 +246,13 @@ st.markdown("""
         transition: background-color 5000s ease-in-out 0s;
     }
 
-    /* 4. BOTÃO DE MOSTRAR/OCULTAR SENHA (OLHO SEM QUADRADO ESCURO) */
+    /* Remove textos/dicas nativas abaixo das caixas */
+    div[data-testid="stTextInput"] small,
+    div[data-testid="stTextInput"] [data-aria-live="polite"] {
+        display: none !important;
+    }
+
+    /* 4. BOTÃO DE MOSTRAR/OCULTAR SENHA (OLHO) */
     div[data-testid="stTextInput"] button,
     div[data-testid="stTextInput"] button[aria-label*="password"],
     div[data-testid="stTextInput"] button[aria-label*="Password"] {
@@ -280,33 +264,21 @@ st.markdown("""
         outline: none !important;
         color: #495057 !important;
         padding: 0 !important;
-        margin: 0 !important;
+        margin: 0 8px 0 0 !important;
         height: 24px !important;
         width: 24px !important;
-        min-height: 24px !important;
-        min-width: 24px !important;
-        max-height: 24px !important;
-        max-width: 24px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-        flex: 0 0 24px !important;
     }
 
-    /* Ícone SVG do olho */
     div[data-testid="stTextInput"] button svg {
         width: 18px !important;
         height: 18px !important;
         fill: #495057 !important;
         color: #495057 !important;
         background: transparent !important;
-    }
-
-    /* Oculta o contador de caracteres nativo */
-    div[data-testid="stTextInput"] small,
-    div[data-testid="stTextInput"] [data-aria-live="polite"] {
-        display: none !important;
     }
 
     /* 5. BOTÕES DE AÇÃO (CONECTAR / SOLICITAR ACESSO) */
