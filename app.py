@@ -112,11 +112,11 @@ if not st.session_state.is_mobile:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO: CORREÇÃO COMPLETA DE CORES (LABELS PRETAS E CAMPOS CLAROS)
+# CSS CUSTOMIZADO: REMOÇÃO TOTAL DA FAIXA CINZA E RESET DAS CAMADAS DE INPUT
 # ==============================================================================
 st.markdown("""
     <style>
-    /* 1. FORÇA TEMA CLARO GLOBAL NO NAVEGADOR E STREAMLIT */
+    /* 1. FORÇA TEMA CLARO E ANULA SOBREPOSIÇÕES NATIVAS DO NAVEGADOR */
     :root {
         color-scheme: light !important;
         --text-color: #212529 !important;
@@ -140,14 +140,14 @@ st.markdown("""
         box-sizing: border-box !important;
     }
 
-    /* Oculta completamente cabeçalhos, rodapés e menus nativos */
+    /* Oculta menus nativos, rodapé e marca d'água */
     header[data-testid="stHeader"], [data-testid="stHeader"], .stDeployButton, #MainMenu, footer {
         display: none !important;
         height: 0px !important;
         visibility: hidden !important;
     }
 
-    /* Padding da área principal */
+    /* Estilização da área interna da página */
     .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {
         width: 100% !important;
         max-width: 100vw !important;
@@ -171,7 +171,7 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
     }
 
-    /* 2. CORREÇÃO DAS LABELS (LOGIN E SENHA) PARA COR PRETA */
+    /* 2. RÓTULOS (LABELS) TOTALMENTE PRETO (#212529) */
     div[data-testid="stTextInput"] label,
     div[data-testid="stTextInput"] label p,
     div[data-testid="stWidgetLabel"],
@@ -185,7 +185,7 @@ st.markdown("""
         opacity: 1 !important;
     }
 
-    /* 3. CORREÇÃO DOS CAMPOS DE ENTRADA (FUNDO CLARO DE CABO A RABO) */
+    /* 3. ESTRUTURA DOS CAMPOS DE TEXTO (ELIMINAÇÃO DE FAIXAS E OVERLAYS CINZAS) */
     div[data-testid="stTextInput"] {
         width: 100% !important;
         margin-bottom: 0.8rem !important;
@@ -193,30 +193,20 @@ st.markdown("""
 
     div[data-testid="stTextInput"] > div {
         width: 100% !important;
-        background-color: #F0F2F6 !important;
+        background-color: transparent !important;
     }
 
-    /* Força fundo cinza claro e texto escuro em todas as camadas internas */
-    div[data-testid="stTextInput"] div[data-baseweb="input"],
-    div[data-testid="stTextInput"] div[data-baseweb="base-input"],
-    div[data-testid="stTextInput"] input {
+    /* Caixas de input principal com contorno único e fundo limpo */
+    div[data-testid="stTextInput"] div[data-baseweb="input"] {
         background-color: #F0F2F6 !important;
         background: #F0F2F6 !important;
-        border-color: #CED4DA !important;
-        color: #212529 !important;
-        -webkit-text-fill-color: #212529 !important;
-        color-scheme: light !important;
-    }
-
-    /* Estrutura do container da caixa de texto */
-    div[data-testid="stTextInput"] div[data-baseweb="input"] {
         border: 1px solid #CED4DA !important;
         border-radius: 8px !important;
         height: 44px !important;
         min-height: 44px !important;
         max-height: 44px !important;
         width: 100% !important;
-        padding: 0px 8px 0px 12px !important;
+        padding: 0px 10px !important;
         margin: 0 !important;
         display: flex !important;
         flex-direction: row !important;
@@ -224,19 +214,36 @@ st.markdown("""
         justify-content: space-between !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
+        overflow: hidden !important; /* Previne vazamento de div interna */
+        position: relative !important;
     }
 
+    /* RESET UNIVERSAL DOS SUBCONTÊINERES INTERNOS (Remove caixas/faixas sobrepostas) */
+    div[data-testid="stTextInput"] div[data-baseweb="input"] *,
+    div[data-testid="stTextInput"] div[data-baseweb="input"] div,
     div[data-testid="stTextInput"] div[data-baseweb="base-input"] {
-        flex: 1 1 auto !important;
-        height: 100% !important;
-        display: flex !important;
-        align-items: center !important;
-        margin: 0 !important;
-        padding: 0 !important;
+        background-color: transparent !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
     }
 
-    /* Campo input de digitação */
+    /* ELIMINAÇÃO DE PSEUDO-ELEMENTOS (Responsáveis por faixas extras e marcadores) */
+    div[data-testid="stTextInput"] div[data-baseweb="input"]::before,
+    div[data-testid="stTextInput"] div[data-baseweb="input"]::after,
+    div[data-testid="stTextInput"] input::before,
+    div[data-testid="stTextInput"] input::after {
+        display: none !important;
+        content: "" !important;
+        background: transparent !important;
+    }
+
+    /* Campo de digitação de texto `<input>` */
     div[data-testid="stTextInput"] input {
+        background-color: transparent !important;
+        background: transparent !important;
+        color: #212529 !important;
         font-size: 0.95rem !important;
         height: 100% !important;
         width: 100% !important;
@@ -245,9 +252,23 @@ st.markdown("""
         padding: 0 !important;
         margin: 0 !important;
         box-shadow: none !important;
+        -webkit-text-fill-color: #212529 !important;
+        color-scheme: light !important;
     }
 
-    /* 4. BOTÃO DE EXIBIR/OCULTAR SENHA (OLHO) */
+    /* CORREÇÃO DO AUTOFILL DO CHROME MOBILE (Fundo escuro/faixa amarela ao selecionar credencial) */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0px 1000px #F0F2F6 inset !important;
+        -webkit-text-fill-color: #212529 !important;
+        box-shadow: 0 0 0px 1000px #F0F2F6 inset !important;
+        background-color: #F0F2F6 !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* 4. BOTÃO DE MOSTRAR/OCULTAR SENHA (OLHO SEM QUADRADO ESCURO) */
     div[data-testid="stTextInput"] button,
     div[data-testid="stTextInput"] button[aria-label*="password"],
     div[data-testid="stTextInput"] button[aria-label*="Password"] {
@@ -273,7 +294,7 @@ st.markdown("""
         flex: 0 0 24px !important;
     }
 
-    /* Ícone do olho dentro do botão */
+    /* Ícone SVG do olho */
     div[data-testid="stTextInput"] button svg {
         width: 18px !important;
         height: 18px !important;
@@ -282,16 +303,7 @@ st.markdown("""
         background: transparent !important;
     }
 
-    /* Prevenção de fundo escuro por preenchimento automático (Autofill) */
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover, 
-    input:-webkit-autofill:focus {
-        -webkit-box-shadow: 0 0 0px 1000px #F0F2F6 inset !important;
-        -webkit-text-fill-color: #212529 !important;
-        transition: background-color 5000s ease-in-out 0s;
-    }
-
-    /* Oculta contador de caracteres */
+    /* Oculta o contador de caracteres nativo */
     div[data-testid="stTextInput"] small,
     div[data-testid="stTextInput"] [data-aria-live="polite"] {
         display: none !important;
@@ -321,7 +333,7 @@ st.markdown("""
         border-color: #ADB5BD !important;
     }
 
-    /* 6. LOGO EM LARGURA TOTAL */
+    /* 6. LOGO EM LARGURA TOTAL E CENTRALIZADA */
     div[data-testid="stImage"] {
         width: 100% !important;
         display: flex !important;
@@ -347,7 +359,7 @@ st.markdown("""
         width: 100% !important;
     }
 
-    /* Dispositivos Móveis */
+    /* Layout Responsivo para Dispositivos Móveis */
     @media (max-width: 768px) {
         div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
             display: flex !important;
