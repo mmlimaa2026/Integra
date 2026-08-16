@@ -112,11 +112,11 @@ if not st.session_state.is_mobile:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO: TELA INICIAL CELULAR, ALINHAMENTO LADO A LADO E ESTILOS
+# CSS CUSTOMIZADO: CORREÇÃO DO MENU POPOVER (CINZA CLARO, TEXTO PRETO E ALINHAMENTO)
 # ==============================================================================
 st.markdown("""
     <style>
-    /* 1. CONFIGURAÇÕES GERAIS DE TEMA */
+    /* 1. CONFIGURAÇÕES GERAIS DE TEMA CLARO */
     :root {
         color-scheme: light !important;
         --text-color: #212529 !important;
@@ -140,14 +140,13 @@ st.markdown("""
         box-sizing: border-box !important;
     }
 
-    /* Oculta menus nativos, rodapé e cabeçalho padrão */
+    /* Oculta elementos nativos do Streamlit */
     header[data-testid="stHeader"], [data-testid="stHeader"], .stDeployButton, #MainMenu, footer {
         display: none !important;
         height: 0px !important;
         visibility: hidden !important;
     }
 
-    /* Estilização do container principal */
     .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {
         width: 100% !important;
         max-width: 100vw !important;
@@ -159,150 +158,106 @@ st.markdown("""
         box-sizing: border-box !important;
     }
 
-    /* Moldura do formulário de login */
+    /* Form do login */
     div[data-testid="stForm"] {
         background-color: #FFFFFF !important;
         border: 1px solid #E0E0E0 !important;
         border-radius: 12px !important;
         padding: 1.25rem !important;
         width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
     }
 
-    /* Rótulos dos campos de texto */
     div[data-testid="stTextInput"] label,
     div[data-testid="stTextInput"] label p,
-    div[data-testid="stWidgetLabel"],
     div[data-testid="stWidgetLabel"] label,
-    div[data-testid="stWidgetLabel"] p,
-    label[data-testid="stWidgetLabel"] {
+    div[data-testid="stWidgetLabel"] p {
         color: #212529 !important;
         -webkit-text-fill-color: #212529 !important;
         font-weight: 600 !important;
-        font-size: 0.95rem !important;
-        opacity: 1 !important;
-    }
-
-    /* Fundos cinza claro fixo para os inputs */
-    div[data-testid="stTextInput"] {
-        width: 100% !important;
-        margin-bottom: 0.8rem !important;
     }
 
     div[data-testid="stTextInput"] div[data-baseweb="input"],
-    div[data-testid="stTextInput"] div[data-baseweb="base-input"],
-    div[data-testid="stTextInput"] div[data-baseweb="input"] > div,
-    div[data-testid="stTextInput"] div[data-baseweb="base-input"] > div {
-        background-color: #F0F2F6 !important;
-        background: #F0F2F6 !important;
-        border: 1px solid #CED4DA !important;
-        border-radius: 8px !important;
-        height: 44px !important;
-        min-height: 44px !important;
-        max-height: 44px !important;
-        width: 100% !important;
-        box-shadow: none !important;
-    }
-
     div[data-testid="stTextInput"] input {
         background-color: #F0F2F6 !important;
         background: #F0F2F6 !important;
         color: #212529 !important;
-        font-size: 0.95rem !important;
-        height: 100% !important;
-        width: 100% !important;
-        border: none !important;
-        outline: none !important;
-        padding: 0 10px !important;
-        margin: 0 !important;
-        box-shadow: none !important;
         -webkit-text-fill-color: #212529 !important;
-        color-scheme: light !important;
     }
 
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover, 
-    input:-webkit-autofill:focus,
-    input:-webkit-autofill:active {
-        -webkit-box-shadow: 0 0 0px 1000px #F0F2F6 inset !important;
-        -webkit-text-fill-color: #212529 !important;
-        box-shadow: 0 0 0px 1000px #F0F2F6 inset !important;
+    /* 2. ESTILIZAÇÃO DO CONTAINER FLUTUANTE DO POPOVER (MENU SUSPENSO) */
+    div[data-testid="stPopoverBody"],
+    div[data-baseweb="popover"],
+    div[data-baseweb="popover"] > div,
+    [data-baseweb="popover"] [data-testid="stVerticalBlock"] {
         background-color: #F0F2F6 !important;
-        transition: background-color 5000s ease-in-out 0s;
+        background: #F0F2F6 !important;
+        border: 1px solid #CED4DA !important;
+        border-radius: 12px !important;
+        color: #212529 !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
     }
 
-    div[data-testid="stTextInput"] small,
-    div[data-testid="stTextInput"] [data-aria-live="polite"] {
-        display: none !important;
+    /* Textos dentro da Popover em preto */
+    div[data-testid="stPopoverBody"] p,
+    div[data-testid="stPopoverBody"] span,
+    div[data-testid="stPopoverBody"] div,
+    div[data-testid="stPopoverBody"] label,
+    div[data-testid="stPopoverBody"] strong {
+        color: #212529 !important;
+        -webkit-text-fill-color: #212529 !important;
     }
 
-    /* Botão de mostrar/ocultar senha */
-    div[data-testid="stTextInput"] button {
-        background-color: transparent !important;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        outline: none !important;
-        color: #495057 !important;
-        padding: 0 !important;
-        margin: 0 8px 0 0 !important;
-        height: 24px !important;
-        width: 24px !important;
+    /* Linha divisória interna do Popover */
+    div[data-testid="stPopoverBody"] hr {
+        border-color: #CED4DA !important;
+        margin: 0.6rem 0 !important;
     }
 
-    div[data-testid="stTextInput"] button svg {
-        width: 18px !important;
-        height: 18px !important;
-        fill: #495057 !important;
-        color: #495057 !important;
-    }
-
-    /* Botões de formulário */
-    div[data-testid="stFormSubmitButton"] {
-        width: 100% !important;
-    }
-
-    div[data-testid="stFormSubmitButton"] button {
+    /* 3. BOTÕES INTERNOS DO POPOVER: ALINHADOS À ESQUERDA COM LETRAS PRETAS */
+    div[data-testid="stPopoverBody"] button {
         background-color: #FFFFFF !important;
         color: #212529 !important;
-        font-weight: 700 !important;
-        border: 1.5px solid #CED4DA !important;
+        -webkit-text-fill-color: #212529 !important;
+        border: 1px solid #CED4DA !important;
         border-radius: 8px !important;
-        width: 100% !important;
-        height: 42px !important;
-        display: flex !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
         align-items: center !important;
-        justify-content: center !important;
-    }
-
-    /* Logo no login */
-    div[data-testid="stImage"] {
-        width: 100% !important;
-        display: flex !important;
-        justify-content: center !important;
-        margin-bottom: 0.5rem !important;
-    }
-
-    div[data-testid="stImage"] img {
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        object-fit: contain !important;
-    }
-
-    .login-error-msg {
-        color: #DC3545 !important;
-        font-size: 0.9rem !important;
         font-weight: 600 !important;
-        text-align: center !important;
-        margin-top: 12px !important;
+        font-size: 0.95rem !important;
+        padding: 0.5rem 0.8rem !important;
         width: 100% !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease !important;
     }
 
-    /* 2. REGRAS EXCLUSIVAS DO CABEÇALHO DA TELA INICIAL NO CELULAR */
-    /* Garante alinhamento lado a lado no mobile para o topo do dashboard */
+    /* Garante alinhamento à esquerda dos textos dos botões na Popover */
+    div[data-testid="stPopoverBody"] button p,
+    div[data-testid="stPopoverBody"] button span {
+        text-align: left !important;
+        justify-content: flex-start !important;
+        width: 100% !important;
+        color: #212529 !important;
+        -webkit-text-fill-color: #212529 !important;
+    }
+
+    /* Estado de Hover e Botão Ativo dentro do Popover */
+    div[data-testid="stPopoverBody"] button:hover {
+        background-color: #E2E6EA !important;
+        border-color: #ADB5BD !important;
+        color: #212529 !important;
+    }
+
+    div[data-testid="stPopoverBody"] button[kind="primary"],
+    div[data-testid="stPopoverBody"] button[data-testid="stBaseButton-primary"] {
+        background-color: #E2E6EA !important;
+        border: 1.5px solid #6C757D !important;
+        color: #212529 !important;
+        font-weight: 700 !important;
+    }
+
+    /* 4. POSICIONAMENTO DO CABEÇALHO PARA EMPURRAR O POPOVER PARA A DIREITA DA TELA */
     div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) {
         display: flex !important;
         flex-direction: row !important;
@@ -312,46 +267,19 @@ st.markdown("""
         width: 100% !important;
     }
 
-    /* Logo ocupa exatamente 1/3 da largura à esquerda no celular */
-    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:first-child {
-        width: 33.33% !important;
-        min-width: 33.33% !important;
-        max-width: 33.33% !important;
-        flex: 0 0 33.33% !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-    }
-
-    /* Coluna do Popover ocupa o restante (2/3) e alinha todo o conteúdo à direita */
+    /* Alinha a coluna que contém o Popover totalmente à direita */
     div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:last-child {
-        width: 66.66% !important;
-        min-width: 66.66% !important;
-        max-width: 66.66% !important;
-        flex: 0 0 66.66% !important;
         display: flex !important;
         justify-content: flex-end !important;
         align-items: center !important;
+        margin-left: auto !important;
     }
 
-    /* Ajuste visual do container da imagem da logo no cabeçalho pós-login */
-    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) div[data-testid="stImage"] {
-        margin: 0 !important;
-        width: 100% !important;
-    }
-
-    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) div[data-testid="stImage"] img {
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        object-fit: contain !important;
-    }
-
-    /* Posicionamento do botão Popover do Menu */
+    /* Botão disparador da Popover */
     div[data-testid="stPopover"] {
         display: flex !important;
         justify-content: flex-end !important;
-        width: auto !important;
+        width: 100% !important;
     }
 
     div[data-testid="stPopover"] > button {
@@ -720,14 +648,14 @@ def classes_screen(): st.info("📌 Módulo de Classes em desenvolvimento.")
 def relatorios_screen(): st.info("📌 Módulo de Relatórios em desenvolvimento.")
 
 # ==============================================================================
-# PAINEL PRINCIPAL (DASHBOARD PÓS-LOGIN - RECONSTRUÇÃO DA TELA INICIAL CELULAR)
+# PAINEL PRINCIPAL (DASHBOARD PÓS-LOGIN - RECONSTRUÇÃO DO CABEÇALHO COM COLUNAS)
 # ==============================================================================
 def dashboard_screen():
-    """Monta o cabeçalho alinhado e navegação após autenticação bem-sucedida."""
+    """Monta o cabeçalho pós-login utilizando colunas para posicionar o Popover na extremidade direita."""
     user_info = st.session_state.user or {}
     eh_admin = user_info.get('Adm') == 'S'
     
-    # Lista de opções do menu principal
+    # Mapeamento de opções do menu principal
     menu_keys = ["Home", "Acolhimento", "Classes", "Relatórios"]
     if eh_admin:
         menu_keys.append("Administração")
@@ -737,8 +665,8 @@ def dashboard_screen():
     server_name_20 = server_name_full[:20]
     user_name = user_info.get('Nome') or user_info.get('Login') or 'Usuário'
 
-    # Divisão em colunas: 1/3 (logo à esquerda) e 2/3 (menu alinhado à direita na mesma linha)
-    col_logo, col_menu = st.columns([1, 2], vertical_alignment="center")
+    # Estrutura de 4 colunas no cabeçalho: 1.5 (logo), 1 (espaçador), 1 (espaçador) e 1.5 (menu no limite direito)
+    col_logo, col_space1, col_space2, col_menu = st.columns([1.5, 1.0, 1.0, 1.5], vertical_alignment="center")
     
     with col_logo:
         if os.path.exists("LogoIntegra.png"):
@@ -747,9 +675,9 @@ def dashboard_screen():
             st.markdown("**🔗 Integra**")
             
     with col_menu:
-        # Popover contendo as opções do menu empilhadas sem títulos internos
+        # Popover posicionado no limite direito do celular
         with st.popover("Menu", use_container_width=False):
-            # Opções de navegação do sistema
+            # Botões do menu alinhados à esquerda dentro do popover com letras pretas
             for opcao in menu_keys:
                 is_active = (st.session_state.menu_option == opcao)
                 btn_type = "primary" if is_active else "secondary"
@@ -758,7 +686,7 @@ def dashboard_screen():
                     st.rerun()
             
             st.markdown("---")
-            # Informações do usuário, servidor e logout posicionados ao fundo do popover
+            # Informações de usuário e servidor na base da popover
             st.markdown(f"**Usuário:** {user_name}")
             st.markdown(f"**Servidor:** {server_name_20}")
             st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
@@ -767,7 +695,7 @@ def dashboard_screen():
 
     st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
 
-    # Direcionamento de telas do menu selecionado
+    # Exibição do módulo selecionado
     if st.session_state.menu_option == "Home":
         home_screen()
     elif st.session_state.menu_option == "Acolhimento":
