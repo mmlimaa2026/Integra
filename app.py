@@ -112,13 +112,16 @@ if not st.session_state.is_mobile:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO: CORREÇÃO COMPLETA DE LARGURA, LOGO E BOTAO OLHO NO MOBILE
+# CSS CUSTOMIZADO: CORREÇÃO COMPLETA DE CORES (LABELS PRETAS E CAMPOS CLAROS)
 # ==============================================================================
 st.markdown("""
     <style>
-    /* 1. CONFIGURAÇÕES GERAIS DE PÁGINA E TEMAS */
+    /* 1. FORÇA TEMA CLARO GLOBAL NO NAVEGADOR E STREAMLIT */
     :root {
         color-scheme: light !important;
+        --text-color: #212529 !important;
+        --background-color: #FFFFFF !important;
+        --secondary-background-color: #F0F2F6 !important;
     }
 
     html, body, [data-testid="stApp"], [data-testid="stAppViewContainer"], 
@@ -137,14 +140,14 @@ st.markdown("""
         box-sizing: border-box !important;
     }
 
-    /* Oculta completamente cabeçalhos, rodapés e menus nativos do Streamlit */
+    /* Oculta completamente cabeçalhos, rodapés e menus nativos */
     header[data-testid="stHeader"], [data-testid="stHeader"], .stDeployButton, #MainMenu, footer {
         display: none !important;
         height: 0px !important;
         visibility: hidden !important;
     }
 
-    /* Ajuste de padding do container principal */
+    /* Padding da área principal */
     .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {
         width: 100% !important;
         max-width: 100vw !important;
@@ -168,7 +171,21 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
     }
 
-    /* 2. PADRONIZAÇÃO RÍGIDA DOS CAMPOS DE ENTRADA (LOGIN E SENHA) */
+    /* 2. CORREÇÃO DAS LABELS (LOGIN E SENHA) PARA COR PRETA */
+    div[data-testid="stTextInput"] label,
+    div[data-testid="stTextInput"] label p,
+    div[data-testid="stWidgetLabel"],
+    div[data-testid="stWidgetLabel"] label,
+    div[data-testid="stWidgetLabel"] p,
+    label[data-testid="stWidgetLabel"] {
+        color: #212529 !important;
+        -webkit-text-fill-color: #212529 !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        opacity: 1 !important;
+    }
+
+    /* 3. CORREÇÃO DOS CAMPOS DE ENTRADA (FUNDO CLARO DE CABO A RABO) */
     div[data-testid="stTextInput"] {
         width: 100% !important;
         margin-bottom: 0.8rem !important;
@@ -176,12 +193,23 @@ st.markdown("""
 
     div[data-testid="stTextInput"] > div {
         width: 100% !important;
+        background-color: #F0F2F6 !important;
     }
 
-    /* Caixa externa do input (BaseWeb) - idêntica para Login e Senha */
-    div[data-testid="stTextInput"] div[data-baseweb="input"] {
+    /* Força fundo cinza claro e texto escuro em todas as camadas internas */
+    div[data-testid="stTextInput"] div[data-baseweb="input"],
+    div[data-testid="stTextInput"] div[data-baseweb="base-input"],
+    div[data-testid="stTextInput"] input {
         background-color: #F0F2F6 !important;
         background: #F0F2F6 !important;
+        border-color: #CED4DA !important;
+        color: #212529 !important;
+        -webkit-text-fill-color: #212529 !important;
+        color-scheme: light !important;
+    }
+
+    /* Estrutura do container da caixa de texto */
+    div[data-testid="stTextInput"] div[data-baseweb="input"] {
         border: 1px solid #CED4DA !important;
         border-radius: 8px !important;
         height: 44px !important;
@@ -196,13 +224,9 @@ st.markdown("""
         justify-content: space-between !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
-        color-scheme: light !important;
     }
 
-    /* Garante fundo transparente nos sub-elementos para evitar tarjas pretas */
     div[data-testid="stTextInput"] div[data-baseweb="base-input"] {
-        background-color: transparent !important;
-        background: transparent !important;
         flex: 1 1 auto !important;
         height: 100% !important;
         display: flex !important;
@@ -211,11 +235,8 @@ st.markdown("""
         padding: 0 !important;
     }
 
-    /* Tag <input> real onde o texto é digitado */
+    /* Campo input de digitação */
     div[data-testid="stTextInput"] input {
-        background-color: transparent !important;
-        background: transparent !important;
-        color: #212529 !important;
         font-size: 0.95rem !important;
         height: 100% !important;
         width: 100% !important;
@@ -224,11 +245,9 @@ st.markdown("""
         padding: 0 !important;
         margin: 0 !important;
         box-shadow: none !important;
-        -webkit-text-fill-color: #212529 !important;
-        color-scheme: light !important;
     }
 
-    /* ISOLAMENTO RÍGIDO DO BOTÃO DO OLHO DA SENHA */
+    /* 4. BOTÃO DE EXIBIR/OCULTAR SENHA (OLHO) */
     div[data-testid="stTextInput"] button,
     div[data-testid="stTextInput"] button[aria-label*="password"],
     div[data-testid="stTextInput"] button[aria-label*="Password"] {
@@ -251,10 +270,10 @@ st.markdown("""
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-        flex: 0 0 24px !important; /* Impede expansão horizontal no mobile */
+        flex: 0 0 24px !important;
     }
 
-    /* Ajuste fino do ícone SVG dentro do botão do olho */
+    /* Ícone do olho dentro do botão */
     div[data-testid="stTextInput"] button svg {
         width: 18px !important;
         height: 18px !important;
@@ -263,7 +282,7 @@ st.markdown("""
         background: transparent !important;
     }
 
-    /* Previne autofill com fundos escuros do Chrome Android */
+    /* Prevenção de fundo escuro por preenchimento automático (Autofill) */
     input:-webkit-autofill,
     input:-webkit-autofill:hover, 
     input:-webkit-autofill:focus {
@@ -272,13 +291,13 @@ st.markdown("""
         transition: background-color 5000s ease-in-out 0s;
     }
 
-    /* Oculta contador de caracteres nativo do Streamlit */
+    /* Oculta contador de caracteres */
     div[data-testid="stTextInput"] small,
     div[data-testid="stTextInput"] [data-aria-live="polite"] {
         display: none !important;
     }
 
-    /* 3. ESTILIZAÇÃO DOS BOTÕES DE AÇÃO (CONECTAR / SOLICITAR) */
+    /* 5. BOTÕES DE AÇÃO (CONECTAR / SOLICITAR ACESSO) */
     div[data-testid="stFormSubmitButton"] {
         width: 100% !important;
     }
@@ -302,7 +321,7 @@ st.markdown("""
         border-color: #ADB5BD !important;
     }
 
-    /* 4. ALINHAMENTO DA LOGO EM LARGURA TOTAL DO CONTAINER */
+    /* 6. LOGO EM LARGURA TOTAL */
     div[data-testid="stImage"] {
         width: 100% !important;
         display: flex !important;
@@ -328,7 +347,7 @@ st.markdown("""
         width: 100% !important;
     }
 
-    /* Regras específicas para telas pequenas (smartphones) */
+    /* Dispositivos Móveis */
     @media (max-width: 768px) {
         div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
             display: flex !important;
@@ -547,14 +566,12 @@ MENU_ICONS = {
 # ==============================================================================
 def login_screen():
     """Gera a interface de login centralizada e alinhada para desktop e smartphones."""
-    # Ajuste fino das colunas: no mobile, utiliza 96% da tela para alinhar logo e moldura
     if st.session_state.is_mobile:
         col_left, col_center, col_right = st.columns([0.02, 0.96, 0.02])
     else:
         col_left, col_center, col_right = st.columns([1.2, 1.6, 1.2])
     
     with col_center:
-        # A logo fica dentro do mesmo container do formulário, garantindo alinhamento idêntico
         if os.path.exists("LogoIntegra.png"):
             st.image("LogoIntegra.png", use_container_width=True)
         else:
@@ -567,7 +584,6 @@ def login_screen():
         
         # FORMULÁRIO DE AUTENTICAÇÃO
         with st.form("login_form", clear_on_submit=False):
-            # Campos com limite idêntico de 20 caracteres e estilos alinhados
             login = st.text_input("Login", max_chars=20, placeholder="", key="login_input")
             senha = st.text_input("Senha", type="password", max_chars=20, placeholder="", key="password_input")
             
@@ -683,7 +699,7 @@ def login_screen():
                             st.session_state.temp_alert_type = "error"
                             st.rerun()
 
-# Placeholders para módulos ainda em construção
+# Placeholders para módulos em desenvolvimento
 def classes_screen(): st.info("📌 Módulo de Classes em desenvolvimento.")
 def relatorios_screen(): st.info("📌 Módulo de Relatórios em desenvolvimento.")
 
