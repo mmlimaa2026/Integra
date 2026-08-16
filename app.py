@@ -81,9 +81,9 @@ if 'temp_alert_type' not in st.session_state:
 is_logged = st.session_state.logged_in
 
 # ==============================================================================
-# DETECÇÃO AUTOMÁTICA DE DISPOSITIVOS MÓVEIS (MOBILE)
+# DETECÇÃO AUTOMÁTICA DE DISPOSITIVOS MÓVEIS (ANDROID / IOS)
 # ==============================================================================
-if is_logged and not st.session_state.is_mobile:
+if not st.session_state.is_mobile:
     detection_script = """
     <script>
     const ua = navigator.userAgent;
@@ -99,16 +99,15 @@ if is_logged and not st.session_state.is_mobile:
     """
     components.html(detection_script, height=0, width=0)
     
-    queryParams = st.query_params
-    if "mobile_detected" in queryParams:
+    if "mobile_detected" in st.query_params:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO: FORÇAR MODO CLARO (WHITE THEME) NO MOBILE E DESKTOP
+# CSS CUSTOMIZADO: MODO CLARO UNIVERSAL, CABEÇALHO MOBILE E FORMATAÇÃO DA TELA
 # ==============================================================================
 st.markdown(f"""
     <style>
-    /* Força o esquema de cores para Light em todo o sistema (sobrescreve o modo escuro do celular) */
+    /* Força o esquema de cores Claro em todo o sistema (sobrescreve o modo escuro do celular) */
     :root {{
         color-scheme: light !important;
     }}
@@ -120,7 +119,7 @@ st.markdown(f"""
         color: #212529 !important;
     }}
 
-    /* Oculta o cabeçalho original e barra nativa do Streamlit */
+    /* Oculta o cabeçalho original e a barra nativa do Streamlit */
     header[data-testid="stHeader"], [data-testid="stHeader"] {{
         display: none !important;
         height: 0px !important;
@@ -131,34 +130,7 @@ st.markdown(f"""
         display: none !important;
     }}
 
-    /* Zera rigorosamente o padding-top do bloco principal para colar o conteúdo no topo */
-    .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {{
-        padding-top: 0.2rem !important;
-        padding-bottom: 1rem !important;
-        padding-left: {"1rem !important" if not is_logged else "1.5rem !important"};
-        padding-right: {"1rem !important" if not is_logged else "1.5rem !important"};
-        margin-top: 0rem !important;
-        width: {"60vw !important" if not is_logged else "100% !important"};
-        max-width: {"550px !important" if not is_logged else "100% !important"};
-        min-width: {"320px !important" if not is_logged else "100% !important"};
-    }}
-
-    /* Ajuste de alinhamento da imagem da Logo */
-    div[data-testid="stImage"] {{
-        display: flex !important;
-        justify-content: {"center !important" if not is_logged else "flex-start !important"};
-        align-items: center !important;
-        margin: 0 !important;
-    }}
-
-    div[data-testid="stImage"] > img {{
-        display: block !important;
-        margin: {"0 auto !important" if not is_logged else "0 !important"};
-        max-width: {"260px !important" if not is_logged else "160px !important"};
-        height: auto !important;
-    }}
-
-    /* Garantia de container de formulário com fundo claro */
+    /* Estilização de formulários e caixas de entrada de texto */
     div[data-testid="stForm"] {{
         background-color: #FFFFFF !important;
         border: 1px solid #E0E0E0 !important;
@@ -166,23 +138,14 @@ st.markdown(f"""
         padding: 1.5rem !important;
     }}
 
-    /* Estilização dos botões de formulário */
     div[data-testid="stForm"] button {{
         background-color: #FFFFFF !important;
         color: #000000 !important;
         font-weight: 700 !important;
         border: 1.5px solid #CED4DA !important;
         border-radius: 8px !important;
-        transition: background-color 0.1s ease, border-color 0.1s ease !important;
     }}
 
-    div[data-testid="stForm"] button:hover {{
-        background-color: #F1F3F5 !important;
-        border-color: #ADB5BD !important;
-        color: #000000 !important;
-    }}
-
-    /* Campos de entrada de texto com texto escuro e fundo claro */
     .stTextInput input, .stPasswordInput input {{
         background-color: #F8F9FA !important;
         border: 1px solid #CED4DA !important;
@@ -191,20 +154,79 @@ st.markdown(f"""
         padding: 8px 12px !important;
     }}
 
-    /* Labels e textos em tom escuro legível */
     label, p, span, h1, h2, h3, h4, .stMarkdown, .element-container {{
         color: #212529 !important;
     }}
 
-    /* Força alinhamento à direita do container da última coluna (Ícone de Usuário) */
-    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child {{
-        display: flex !important;
-        justify-content: flex-end !important;
-        align-items: center !important;
-    }}
-
     footer {{
         visibility: hidden;
+    }}
+
+    /* ==============================================================================
+       REGRAS CSS ESPECÍFICAS PARA DISPOSITIVOS MÓVEIS (MOBILE: ANDROID / IOS)
+       ============================================================================== */
+    @media (max-width: 768px) {{
+        /* Utiliza 100% da largura da tela no smartphone para evitar espremer o conteúdo */
+        .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {{
+            width: 100% !important;
+            max-width: 100% !important;
+            padding-left: 0.8rem !important;
+            padding-right: 0.8rem !important;
+            padding-top: 0.5rem !important;
+            margin-top: 0rem !important;
+        }}
+
+        /* Mantém as colunas do cabeçalho em linha horizontal (sem empilhar) */
+        div[data-testid="stHorizontalBlock"] {{
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }}
+
+        /* Garante o alinhamento do menu hambúrguer à extrema direita */
+        div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child {{
+            display: flex !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+        }}
+
+        /* Ajusta o tamanho da logo para aproximadamente 1/3 da largura no mobile */
+        div[data-testid="stImage"] img {{
+            max-width: 120px !important;
+            width: 100% !important;
+            height: auto !important;
+        }}
+    }}
+
+    /* ==============================================================================
+       REGRAS CSS PARA DESKTOP
+       ============================================================================== */
+    @media (min-width: 769px) {{
+        .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {{
+            padding-top: 0.2rem !important;
+            padding-bottom: 1rem !important;
+            padding-left: {"1rem !important" if not is_logged else "1.5rem !important"};
+            padding-right: {"1rem !important" if not is_logged else "1.5rem !important"};
+            margin-top: 0rem !important;
+            width: {"60vw !important" if not is_logged else "100% !important"};
+            max-width: {"550px !important" if not is_logged else "100% !important"};
+            min-width: {"320px !important" if not is_logged else "100% !important"};
+        }}
+
+        div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child {{
+            display: flex !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+        }}
+
+        div[data-testid="stImage"] img {{
+            display: block !important;
+            margin: {"0 auto !important" if not is_logged else "0 !important"};
+            max-width: {"260px !important" if not is_logged else "160px !important"};
+            height: auto !important;
+        }}
     }}
     </style>
 """, unsafe_allow_html=True)
@@ -391,7 +413,6 @@ def logout():
     st.session_state.menu_option = "Home"
     st.session_state.temp_alert_message = None
     st.session_state.temp_alert_type = None
-    st.session_state.is_mobile = False
     st.rerun()
 
 MENU_ICONS = {
@@ -538,7 +559,7 @@ def classes_screen(): st.info("📌 Módulo de Classes em desenvolvimento.")
 def relatorios_screen(): st.info("📌 Módulo de Relatórios em desenvolvimento.")
 
 def dashboard_screen():
-    """Monta a interface principal pós-login com menu centralizado e perfil à direita."""
+    """Monta a interface principal pós-login com suporte adaptativo para Mobile e Desktop."""
     user_info = st.session_state.user or {}
     eh_admin = user_info.get('Adm') == 'S'
     
@@ -551,29 +572,44 @@ def dashboard_screen():
     server_name_20 = server_name_full[:20]
     user_name = user_info.get('Nome') or user_info.get('Login') or 'Usuário'
 
-    # Interface responsiva para mobile via sidebar
+    # LAYOUT ADAPTATIVO: MOBILE VS DESKTOP
     if st.session_state.is_mobile:
-        with st.sidebar:
-            st.markdown("### 🍔 Menu Principal")
-            st.markdown("---")
-            for opcao in menu_keys:
-                if st.button(MENU_ICONS.get(opcao, opcao), use_container_width=True, key=f"mob_{opcao}"):
-                    st.session_state.menu_option = opcao
-                    st.rerun()
-            
-            st.markdown("---")
-            st.markdown(f"👤 **Usuário:** {user_name}")
-            st.markdown(f"🖥️ **Servidor:** {server_name_20}")
-            st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-            if st.button("🚪 Sair do Sistema", use_container_width=True, key="mob_logout"):
-                logout()
+        # ==============================================================================
+        # CABEÇALHO PARA DISPOSITIVOS MÓVEIS (SMARTPHONE ANDROID / IOS)
+        # ==============================================================================
+        # Coluna 1 (4/12 = 1/3 da largura): Logo alinhado à esquerda
+        # Coluna 2 (8/12 = 2/3 da largura): Menu Hambúrguer alinhado à direita
+        col_logo, col_menu = st.columns([4, 8], vertical_alignment="center")
+        
+        with col_logo:
+            if os.path.exists("LogoIntegra.png"):
+                st.image("LogoIntegra.png")
+            else:
+                st.markdown("**🔗 Integra**")
+                
+        with col_menu:
+            # Popover atuando como Menu Hambúrguer unificado (Opções de Navegação + Perfil)
+            with st.popover("🍔 Menu", use_container_width=False):
+                st.markdown("### 📌 Navegação")
+                for opcao in menu_keys:
+                    is_active = (st.session_state.menu_option == opcao)
+                    btn_type = "primary" if is_active else "secondary"
+                    if st.button(MENU_ICONS.get(opcao, opcao), use_container_width=True, type=btn_type, key=f"mob_btn_{opcao}"):
+                        st.session_state.menu_option = opcao
+                        st.rerun()
+                
+                st.markdown("---")
+                st.markdown("### 👤 Perfil do Usuário")
+                st.markdown(f"**Usuário:** {user_name}")
+                st.markdown(f"**Servidor:** {server_name_20}")
+                st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+                if st.button("🚪 Sair do Sistema", use_container_width=True, key="mob_logout_btn"):
+                    logout()
 
-        if os.path.exists("LogoIntegra.png"):
-            st.image("LogoIntegra.png", width=140)
-        else:
-            st.markdown("### 🔗 Integra")
     else:
-        # ESTRUTURA DE BARRA DE NAVEGAÇÃO: LOGO (ESQUERDA), MENU (CENTRO) E PERFIL (DIREITA)
+        # ==============================================================================
+        # CABEÇALHO PARA DESKTOP
+        # ==============================================================================
         col_logo, col_menu, col_user = st.columns([1.8, 7.2, 1.0], vertical_alignment="center")
         
         with col_logo:
@@ -593,7 +629,6 @@ def dashboard_screen():
                         st.rerun()
                         
         with col_user:
-            # Popover de usuário perfeitamente alinhado à extrema direita via CSS da coluna
             with st.popover("👤", use_container_width=False):
                 st.markdown(f"**Usuário:** {user_name}")
                 st.markdown(f"**Servidor:** {server_name_20}")
@@ -603,7 +638,7 @@ def dashboard_screen():
 
     st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
 
-    # Roteamento de telas dos módulos selecionados
+    # Roteamento das telas dos módulos selecionados
     if st.session_state.menu_option == "Home":
         home_screen()
     elif st.session_state.menu_option == "Acolhimento":
