@@ -26,7 +26,7 @@ st.set_page_config(
     page_title="Integra | Sistema de Novos Membros",
     page_icon="🔗",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 def get_db_config():
@@ -78,8 +78,6 @@ if 'temp_alert_message' not in st.session_state:
 if 'temp_alert_type' not in st.session_state:
     st.session_state.temp_alert_type = None
 
-is_logged = st.session_state.logged_in
-
 # ==============================================================================
 # DETECÇÃO AUTOMÁTICA DE DISPOSITIVOS MÓVEIS (ANDROID / IOS)
 # ==============================================================================
@@ -103,131 +101,173 @@ if not st.session_state.is_mobile:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO: MODO CLARO UNIVERSAL, CABEÇALHO MOBILE E FORMATAÇÃO DA TELA
+# CSS CUSTOMIZADO: LIMITAÇÃO ESTRITA DE LARGURA PARA EVITAR TRANSBORDAMENTO (OVERFLOW)
 # ==============================================================================
-st.markdown(f"""
+st.markdown("""
     <style>
-    /* Força o esquema de cores Claro em todo o sistema (sobrescreve o modo escuro do celular) */
-    :root {{
+    /* 1. RESET GLOBAL DE CORES E BLOQUEIO DE OVERFLOW HORIZONTAL */
+    :root {
         color-scheme: light !important;
-    }}
+    }
 
-    /* Fundo Branco universal para todos os containers do Streamlit */
     html, body, [data-testid="stApp"], [data-testid="stAppViewContainer"], 
-    [data-testid="stMain"], .main, .block-container, [data-testid="stHeader"] {{
+    [data-testid="stMain"], .main {
         background-color: #FFFFFF !important;
         color: #212529 !important;
-    }}
+        max-width: 100vw !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
 
-    /* Oculta o cabeçalho original e a barra nativa do Streamlit */
-    header[data-testid="stHeader"], [data-testid="stHeader"] {{
+    *, *:before, *:after {
+        box-sizing: border-box !important;
+    }
+
+    /* Oculta barras padrão do Streamlit */
+    header[data-testid="stHeader"], [data-testid="stHeader"], .stDeployButton, #MainMenu, footer {
         display: none !important;
         height: 0px !important;
         visibility: hidden !important;
-    }}
-    
-    .stDeployButton, #MainMenu {{
-        display: none !important;
-    }}
+    }
 
-    /* Estilização de formulários e caixas de entrada de texto */
-    div[data-testid="stForm"] {{
+    /* Container de Conteúdo Principal limitado à tela do dispositivo */
+    .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {
+        width: 100% !important;
+        max-width: 100vw !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 1rem !important;
+        padding-left: 0.8rem !important;
+        padding-right: 0.8rem !important;
+        margin: 0 auto !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Estilização para caixas de formulário (Login / Solicitação) */
+    div[data-testid="stForm"] {
         background-color: #FFFFFF !important;
         border: 1px solid #E0E0E0 !important;
         border-radius: 12px !important;
-        padding: 1.5rem !important;
-    }}
+        padding: 1.2rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
 
-    div[data-testid="stForm"] button {{
+    /* Estilização dos Botões nos Formulários */
+    div[data-testid="stForm"] button {
         background-color: #FFFFFF !important;
-        color: #000000 !important;
+        color: #212529 !important;
         font-weight: 700 !important;
         border: 1.5px solid #CED4DA !important;
         border-radius: 8px !important;
-    }}
+        width: 100% !important;
+        transition: all 0.2s ease !important;
+    }
 
-    .stTextInput input, .stPasswordInput input {{
+    div[data-testid="stForm"] button:hover {
+        background-color: #F8F9FA !important;
+        border-color: #ADB5BD !important;
+    }
+
+    /* Inputs de Texto e Senha ajustados ao container */
+    .stTextInput input, .stPasswordInput input {
         background-color: #F8F9FA !important;
         border: 1px solid #CED4DA !important;
         border-radius: 8px !important;
         color: #212529 !important;
         padding: 8px 12px !important;
-    }}
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
 
-    label, p, span, h1, h2, h3, h4, .stMarkdown, .element-container {{
+    /* Quebra automática de linhas longas em textos */
+    label, p, span, h1, h2, h3, h4, .stMarkdown, .element-container {
         color: #212529 !important;
-    }}
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
 
-    footer {{
-        visibility: hidden;
-    }}
+    /* Imagens Responsivas que não estouram o container */
+    div[data-testid="stImage"] img {
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+    }
 
-    /* ==============================================================================
-       REGRAS CSS ESPECÍFICAS PARA DISPOSITIVOS MÓVEIS (MOBILE: ANDROID / IOS)
-       ============================================================================== */
-    @media (max-width: 768px) {{
-        /* Utiliza 100% da largura da tela no smartphone para evitar espremer o conteúdo */
-        .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {{
-            width: 100% !important;
-            max-width: 100% !important;
-            padding-left: 0.8rem !important;
-            padding-right: 0.8rem !important;
-            padding-top: 0.5rem !important;
-            margin-top: 0rem !important;
-        }}
-
-        /* Mantém as colunas do cabeçalho em linha horizontal (sem empilhar) */
-        div[data-testid="stHorizontalBlock"] {{
+    /* 2. REGRAS EXCLUSIVAS PARA SMARTPHONES (ANDROID / IOS) */
+    @media (max-width: 768px) {
+        /* Cabeçalho do topo no Mobile (Logo + Menu Hambúrguer em 1 linha) */
+        .block-container div[data-testid="stHorizontalBlock"]:first-of-type {
             display: flex !important;
             flex-direction: row !important;
-            flex-wrap: nowrap !important;
             justify-content: space-between !important;
             align-items: center !important;
-        }}
-
-        /* Garante o alinhamento do menu hambúrguer à extrema direita */
-        div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child {{
-            display: flex !important;
-            justify-content: flex-end !important;
-            align-items: center !important;
-        }}
-
-        /* Ajusta o tamanho da logo para aproximadamente 1/3 da largura no mobile */
-        div[data-testid="stImage"] img {{
-            max-width: 120px !important;
             width: 100% !important;
-            height: auto !important;
-        }}
-    }}
+            max-width: 100% !important;
+            margin-bottom: 0.5rem !important;
+            gap: 0.5rem !important;
+        }
 
-    /* ==============================================================================
-       REGRAS CSS PARA DESKTOP
-       ============================================================================== */
-    @media (min-width: 769px) {{
-        .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {{
-            padding-top: 0.2rem !important;
-            padding-bottom: 1rem !important;
-            padding-left: {"1rem !important" if not is_logged else "1.5rem !important"};
-            padding-right: {"1rem !important" if not is_logged else "1.5rem !important"};
-            margin-top: 0rem !important;
-            width: {"60vw !important" if not is_logged else "100% !important"};
-            max-width: {"550px !important" if not is_logged else "100% !important"};
-            min-width: {"320px !important" if not is_logged else "100% !important"};
-        }}
+        /* Coluna do Logo (~35% da largura, alinhada à esquerda) */
+        .block-container div[data-testid="stHorizontalBlock"]:first-of-type > div[data-testid="stColumn"]:first-child {
+            width: 35% !important;
+            min-width: 35% !important;
+            max-width: 35% !important;
+            flex: 0 0 35% !important;
+            display: flex !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+        }
 
-        div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child {{
+        /* Coluna do Menu Hambúrguer (~60% da largura, alinhada à direita) */
+        .block-container div[data-testid="stHorizontalBlock"]:first-of-type > div[data-testid="stColumn"]:last-child {
+            width: 60% !important;
+            min-width: 60% !important;
+            max-width: 60% !important;
+            flex: 0 0 60% !important;
             display: flex !important;
             justify-content: flex-end !important;
             align-items: center !important;
-        }}
+        }
 
-        div[data-testid="stImage"] img {{
+        /* Tamanho proporcional do Logo no smartphone */
+        div[data-testid="stImage"] img {
+            max-width: 110px !important;
+        }
+
+        /* Botões do formulário lado a lado no celular sem estourar */
+        div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 0.5rem !important;
+            width: 100% !important;
+        }
+
+        div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+            width: 50% !important;
+            min-width: 50% !important;
+            flex: 1 1 50% !important;
+        }
+    }
+
+    /* 3. REGRAS PARA DESKTOP */
+    @media (min-width: 769px) {
+        div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child {
+            display: flex !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+        }
+
+        div[data-testid="stImage"] img {
             display: block !important;
-            margin: {"0 auto !important" if not is_logged else "0 !important"};
-            max-width: {"260px !important" if not is_logged else "160px !important"};
+            max-width: 180px !important;
             height: auto !important;
-        }}
-    }}
+        }
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -429,17 +469,17 @@ def login_screen():
         st.image("LogoIntegra.png")
     else:
         st.markdown("""
-            <h1 style="color: #212529 !important; font-size: 2.2rem; font-weight: 800; text-align: center; margin: 0;">🔗 Integra</h1>
-            <p style="color: #495057 !important; text-align: center; font-size: 1rem; margin-bottom: 0.5rem;">Sistema de Novos Membros</p>
+            <h1 style="color: #212529 !important; font-size: 2rem; font-weight: 800; text-align: center; margin: 0;">🔗 Integra</h1>
+            <p style="color: #495057 !important; text-align: center; font-size: 0.95rem; margin-bottom: 0.5rem;">Sistema de Novos Membros</p>
         """, unsafe_allow_html=True)
         
-    st.markdown('<p style="color: #495057 !important; text-align: center; font-size: 0.95rem; margin-top: 0.2rem; margin-bottom: 1.5rem;">Entre com seu login e senha abaixo:</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color: #495057 !important; text-align: center; font-size: 0.9rem; margin-top: 0.2rem; margin-bottom: 1rem;">Entre com seu login e senha abaixo:</p>', unsafe_allow_html=True)
     
     with st.form("login_form", clear_on_submit=False):
         login = st.text_input("Login", max_chars=50, placeholder="Digite seu login", key="login_input")
         senha = st.text_input("Senha", type="password", max_chars=20, placeholder="Digite sua senha", key="password_input")
         
-        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
         
         btn_col1, btn_col2 = st.columns([1, 1])
         with btn_col1:
@@ -572,13 +612,11 @@ def dashboard_screen():
     server_name_20 = server_name_full[:20]
     user_name = user_info.get('Nome') or user_info.get('Login') or 'Usuário'
 
-    # LAYOUT ADAPTATIVO: MOBILE VS DESKTOP
+    # LAYOUT ADAPTATIVO
     if st.session_state.is_mobile:
         # ==============================================================================
         # CABEÇALHO PARA DISPOSITIVOS MÓVEIS (SMARTPHONE ANDROID / IOS)
         # ==============================================================================
-        # Coluna 1 (4/12 = 1/3 da largura): Logo alinhado à esquerda
-        # Coluna 2 (8/12 = 2/3 da largura): Menu Hambúrguer alinhado à direita
         col_logo, col_menu = st.columns([4, 8], vertical_alignment="center")
         
         with col_logo:
@@ -588,7 +626,7 @@ def dashboard_screen():
                 st.markdown("**🔗 Integra**")
                 
         with col_menu:
-            # Popover atuando como Menu Hambúrguer unificado (Opções de Navegação + Perfil)
+            # Menu Hambúrguer unificado (Opções de Navegação + Dados do Usuário)
             with st.popover("🍔 Menu", use_container_width=False):
                 st.markdown("### 📌 Navegação")
                 for opcao in menu_keys:
