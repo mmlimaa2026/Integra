@@ -104,15 +104,20 @@ if is_logged and not st.session_state.is_mobile:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO: REMOÇÃO EFETIVA DO ESPAÇO SUPERIOR E ALINHAMENTOS
+# CSS CUSTOMIZADO: FORÇAR MODO CLARO (WHITE THEME) NO MOBILE E DESKTOP
 # ==============================================================================
 st.markdown(f"""
     <style>
-    /* Reset total de margens e preenchimentos da página */
-    html, body, [data-testid="stApp"] {{
-        margin: 0 !important;
-        padding: 0 !important;
-        height: 100% !important;
+    /* Força o esquema de cores para Light em todo o sistema (sobrescreve o modo escuro do celular) */
+    :root {{
+        color-scheme: light !important;
+    }}
+
+    /* Fundo Branco universal para todos os containers do Streamlit */
+    html, body, [data-testid="stApp"], [data-testid="stAppViewContainer"], 
+    [data-testid="stMain"], .main, .block-container, [data-testid="stHeader"] {{
+        background-color: #FFFFFF !important;
+        color: #212529 !important;
     }}
 
     /* Oculta o cabeçalho original e barra nativa do Streamlit */
@@ -124,17 +129,6 @@ st.markdown(f"""
     
     .stDeployButton, #MainMenu {{
         display: none !important;
-    }}
-
-    /* Remove o padding superior do container geral de visualização */
-    div[data-testid="stAppViewContainer"] {{
-        padding-top: 0rem !important;
-        margin-top: 0rem !important;
-    }}
-
-    div[data-testid="stMain"] {{
-        padding-top: 0rem !important;
-        margin-top: 0rem !important;
     }}
 
     /* Zera rigorosamente o padding-top do bloco principal para colar o conteúdo no topo */
@@ -164,6 +158,14 @@ st.markdown(f"""
         height: auto !important;
     }}
 
+    /* Garantia de container de formulário com fundo claro */
+    div[data-testid="stForm"] {{
+        background-color: #FFFFFF !important;
+        border: 1px solid #E0E0E0 !important;
+        border-radius: 12px !important;
+        padding: 1.5rem !important;
+    }}
+
     /* Estilização dos botões de formulário */
     div[data-testid="stForm"] button {{
         background-color: #FFFFFF !important;
@@ -180,7 +182,7 @@ st.markdown(f"""
         color: #000000 !important;
     }}
 
-    /* Campos de entrada de texto */
+    /* Campos de entrada de texto com texto escuro e fundo claro */
     .stTextInput input, .stPasswordInput input {{
         background-color: #F8F9FA !important;
         border: 1px solid #CED4DA !important;
@@ -189,15 +191,16 @@ st.markdown(f"""
         padding: 8px 12px !important;
     }}
 
+    /* Labels e textos em tom escuro legível */
+    label, p, span, h1, h2, h3, h4, .stMarkdown, .element-container {{
+        color: #212529 !important;
+    }}
+
     /* Força alinhamento à direita do container da última coluna (Ícone de Usuário) */
     div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child {{
         display: flex !important;
         justify-content: flex-end !important;
         align-items: center !important;
-    }}
-
-    .element-container, .stMarkdown, p, span, h1, h2, h3, div {{
-        color: #212529;
     }}
 
     footer {{
@@ -405,11 +408,11 @@ def login_screen():
         st.image("LogoIntegra.png")
     else:
         st.markdown("""
-            <h1 style="color: #212529; font-size: 2.2rem; font-weight: 800; text-align: center; margin: 0;">🔗 Integra</h1>
-            <p style="color: #495057; text-align: center; font-size: 1rem; margin-bottom: 0.5rem;">Sistema de Novos Membros</p>
+            <h1 style="color: #212529 !important; font-size: 2.2rem; font-weight: 800; text-align: center; margin: 0;">🔗 Integra</h1>
+            <p style="color: #495057 !important; text-align: center; font-size: 1rem; margin-bottom: 0.5rem;">Sistema de Novos Membros</p>
         """, unsafe_allow_html=True)
         
-    st.markdown('<p style="color: #495057; text-align: center; font-size: 0.95rem; margin-top: 0.2rem; margin-bottom: 1.5rem;">Entre com seu login e senha abaixo:</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color: #495057 !important; text-align: center; font-size: 0.95rem; margin-top: 0.2rem; margin-bottom: 1.5rem;">Entre com seu login e senha abaixo:</p>', unsafe_allow_html=True)
     
     with st.form("login_form", clear_on_submit=False):
         login = st.text_input("Login", max_chars=50, placeholder="Digite seu login", key="login_input")
