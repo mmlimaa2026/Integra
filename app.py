@@ -108,7 +108,7 @@ if not st.session_state.is_mobile:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO UNIFICADO: CORREÇÃO COMPLETA DE BOTÕES, FORMULÁRIO E POPOVER
+# CSS CUSTOMIZADO UNIFICADO: FIXAÇÃO DE CABEÇALHO LADO A LADO E POPOVER À DIREITA
 # ==============================================================================
 st.markdown("""
     <style>
@@ -153,7 +153,45 @@ st.markdown("""
         box-sizing: border-box !important;
     }
 
-    /* 2. CORREÇÃO DEFINITIVA DE TODOS OS BOTÕES (LOGIN, FORMULÁRIOS E GERAIS) */
+    /* 2. FORÇAR O CABEÇALHO COM POPOVER A MANTER-SE EM LINHA ÚNICA NO CELULAR */
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+    }
+
+    /* Primeira coluna (Logo): exatamente 1/3 da largura */
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:first-child {
+        width: 33.33% !important;
+        min-width: 33.33% !important;
+        max-width: 33.33% !important;
+        flex: 0 0 33.33% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+    }
+
+    /* Segunda coluna (Menu Popover): 2/3 da largura alinhado totalmente à direita */
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:last-child {
+        width: 66.66% !important;
+        min-width: 66.66% !important;
+        max-width: 66.66% !important;
+        flex: 0 0 66.66% !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+    }
+
+    div[data-testid="stPopover"] {
+        display: flex !important;
+        justify-content: flex-end !important;
+        width: auto !important;
+    }
+
+    /* 3. ESTILIZAÇÃO DOS BOTÕES */
     button,
     button[kind="secondary"],
     button[kind="primary"],
@@ -173,12 +211,8 @@ st.markdown("""
         transition: all 0.2s ease !important;
     }
 
-    /* Estado de Hover / Toque nos botões */
-    button:hover,
-    button:active,
-    button:focus,
-    div[data-testid="stFormSubmitButton"] > button:hover,
-    div[data-testid="stFormSubmitButton"] > button:active {
+    button:hover, button:active, button:focus,
+    div[data-testid="stFormSubmitButton"] > button:hover {
         background-color: #E2E6EA !important;
         background: #E2E6EA !important;
         color: #212529 !important;
@@ -186,7 +220,6 @@ st.markdown("""
         border-color: #ADB5BD !important;
     }
 
-    /* Garantir cor preta para textos e ícones dentro de botões */
     button p, button span, button div,
     div[data-testid="stFormSubmitButton"] button p,
     div[data-testid="stFormSubmitButton"] button span {
@@ -195,7 +228,7 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* 3. CAMPOS DE TEXTO E INPUTS DO FORMULÁRIO */
+    /* 4. CAMPOS DE TEXTO E INPUTS DO FORMULÁRIO */
     div[data-testid="stForm"] {
         background-color: #FFFFFF !important;
         border: 1px solid #E0E0E0 !important;
@@ -223,7 +256,7 @@ st.markdown("""
         border-radius: 8px !important;
     }
 
-    /* 4. POPOVER (MENU SUSPENSO NO CELULAR) - FUNDO CINZA CLARO E TEXTO PRETO */
+    /* 5. POPOVER (MENU SUSPENSO) - FUNDO CINZA CLARO E TEXTO PRETO */
     div[data-testid="stPopoverBody"],
     div[data-baseweb="popover"],
     div[data-baseweb="popover"] > div,
@@ -236,7 +269,6 @@ st.markdown("""
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
     }
 
-    /* Textos internos da Popover */
     div[data-testid="stPopoverBody"] p,
     div[data-testid="stPopoverBody"] span,
     div[data-testid="stPopoverBody"] div,
@@ -246,13 +278,11 @@ st.markdown("""
         -webkit-text-fill-color: #212529 !important;
     }
 
-    /* Linha divisória da Popover */
     div[data-testid="stPopoverBody"] hr {
         border-color: #CED4DA !important;
         margin: 0.6rem 0 !important;
     }
 
-    /* Botões dentro da Popover: Alinhados à Esquerda com Letras Pretas */
     div[data-testid="stPopoverBody"] button {
         background-color: #FFFFFF !important;
         color: #212529 !important;
@@ -275,37 +305,12 @@ st.markdown("""
         -webkit-text-fill-color: #212529 !important;
     }
 
-    /* Botão selecionado dentro da Popover */
     div[data-testid="stPopoverBody"] button[kind="primary"],
     div[data-testid="stPopoverBody"] button[data-testid="stBaseButton-primary"] {
         background-color: #E2E6EA !important;
         border: 1.5px solid #6C757D !important;
     }
 
-    /* 5. POPOVER EMPURRADO PARA O LIMITE DIREITO DA TELA */
-    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        width: 100% !important;
-    }
-
-    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:last-child {
-        display: flex !important;
-        justify-content: flex-end !important;
-        align-items: center !important;
-        margin-left: auto !important;
-    }
-
-    div[data-testid="stPopover"] {
-        display: flex !important;
-        justify-content: flex-end !important;
-        width: 100% !important;
-    }
-
-    /* Ajuste para dispositivos móveis */
     @media (max-width: 768px) {
         div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
             display: flex !important;
@@ -523,7 +528,7 @@ MENU_ICONS = {
 # TELA DE LOGIN E SOLICITAÇÃO DE ACESSO
 # ==============================================================================
 def login_screen():
-    """Interface de Login com botões forçados para fundo claro e letras pretas."""
+    """Interface de Login."""
     if st.session_state.is_mobile:
         col_left, col_center, col_right = st.columns([0.02, 0.96, 0.02])
     else:
@@ -661,10 +666,10 @@ def classes_screen(): st.info("📌 Módulo de Classes em desenvolvimento.")
 def relatorios_screen(): st.info("📌 Módulo de Relatórios em desenvolvimento.")
 
 # ==============================================================================
-# PAINEL PRINCIPAL (CABEÇALHO COM POPOVER NA EXTREMIDADE DIREITA DA TELA)
+# PAINEL PRINCIPAL (CABEÇALHO COM LOGO EM 1/3 E POPOVER À DIREITA EM 2/3)
 # ==============================================================================
 def dashboard_screen():
-    """Exibe a tela principal com o popover no limite direito."""
+    """Exibe a tela principal com a logo em 1/3 e o popover totalmente à direita."""
     user_info = st.session_state.user or {}
     eh_admin = user_info.get('Adm') == 'S'
     
@@ -677,8 +682,8 @@ def dashboard_screen():
     server_name_20 = server_name_full[:20]
     user_name = user_info.get('Nome') or user_info.get('Login') or 'Usuário'
 
-    # Multi-colunas com espaçadores para empurrar a quarta coluna com o popover até a margem direita
-    col_logo, col_space1, col_space2, col_menu = st.columns([1.5, 1.0, 1.0, 1.5], vertical_alignment="center")
+    # Divisão exata de 2 colunas: 1/3 (logo) e 2/3 (menu)
+    col_logo, col_menu = st.columns([1, 2], vertical_alignment="center")
     
     with col_logo:
         if os.path.exists("LogoIntegra.png"):
@@ -687,9 +692,7 @@ def dashboard_screen():
             st.markdown("**🔗 Integra**")
             
     with col_menu:
-        # Popover configurado no limite direito
         with st.popover("Menu", use_container_width=False):
-            # Botões alinhados à esquerda com letras pretas
             for opcao in menu_keys:
                 is_active = (st.session_state.menu_option == opcao)
                 btn_type = "primary" if is_active else "secondary"
