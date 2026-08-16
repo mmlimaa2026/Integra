@@ -112,11 +112,11 @@ if not st.session_state.is_mobile:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO: CORREÇÃO DEFINITIVA DO FUNDO CINZA CLARO NOS CAMPOS LOGIN E SENHA
+# CSS CUSTOMIZADO: TELA INICIAL CELULAR, ALINHAMENTO LADO A LADO E ESTILOS
 # ==============================================================================
 st.markdown("""
     <style>
-    /* 1. FORÇA TEMA CLARO NO NAVEGADOR E LAYOUT */
+    /* 1. CONFIGURAÇÕES GERAIS DE TEMA */
     :root {
         color-scheme: light !important;
         --text-color: #212529 !important;
@@ -140,18 +140,18 @@ st.markdown("""
         box-sizing: border-box !important;
     }
 
-    /* Oculta menus nativos, rodapé e marca d'água */
+    /* Oculta menus nativos, rodapé e cabeçalho padrão */
     header[data-testid="stHeader"], [data-testid="stHeader"], .stDeployButton, #MainMenu, footer {
         display: none !important;
         height: 0px !important;
         visibility: hidden !important;
     }
 
-    /* Estilização da área interna da página */
+    /* Estilização do container principal */
     .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {
         width: 100% !important;
         max-width: 100vw !important;
-        padding-top: 1rem !important;
+        padding-top: 0.8rem !important;
         padding-bottom: 1rem !important;
         padding-left: 0.5rem !important;
         padding-right: 0.5rem !important;
@@ -159,7 +159,7 @@ st.markdown("""
         box-sizing: border-box !important;
     }
 
-    /* Moldura externa do formulário de login */
+    /* Moldura do formulário de login */
     div[data-testid="stForm"] {
         background-color: #FFFFFF !important;
         border: 1px solid #E0E0E0 !important;
@@ -171,7 +171,7 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
     }
 
-    /* 2. RÓTULOS (LABELS) EM PRETO (#212529) */
+    /* Rótulos dos campos de texto */
     div[data-testid="stTextInput"] label,
     div[data-testid="stTextInput"] label p,
     div[data-testid="stWidgetLabel"],
@@ -185,13 +185,12 @@ st.markdown("""
         opacity: 1 !important;
     }
 
-    /* 3. CAMPOS DE LOGIN E SENHA: FUNDO CINZA CLARO FIXO (#F0F2F6) */
+    /* Fundos cinza claro fixo para os inputs */
     div[data-testid="stTextInput"] {
         width: 100% !important;
         margin-bottom: 0.8rem !important;
     }
 
-    /* Força o fundo cinza claro em TODAS as camadas internas dos inputs */
     div[data-testid="stTextInput"] div[data-baseweb="input"],
     div[data-testid="stTextInput"] div[data-baseweb="base-input"],
     div[data-testid="stTextInput"] div[data-baseweb="input"] > div,
@@ -207,17 +206,6 @@ st.markdown("""
         box-shadow: none !important;
     }
 
-    /* Estado de foco/hover mantendo fundo cinza claro */
-    div[data-testid="stTextInput"] div[data-baseweb="input"]:focus-within,
-    div[data-testid="stTextInput"] div[data-baseweb="input"]:hover,
-    div[data-testid="stTextInput"] div[data-baseweb="input"]:active {
-        background-color: #F0F2F6 !important;
-        background: #F0F2F6 !important;
-        border-color: #ADB5BD !important;
-        box-shadow: 0 0 0 1px #ADB5BD !important;
-    }
-
-    /* Campo de texto interno `<input>` */
     div[data-testid="stTextInput"] input {
         background-color: #F0F2F6 !important;
         background: #F0F2F6 !important;
@@ -234,7 +222,6 @@ st.markdown("""
         color-scheme: light !important;
     }
 
-    /* Força cinza claro no Autofill do Chrome / Navegadores Desktop & Mobile */
     input:-webkit-autofill,
     input:-webkit-autofill:hover, 
     input:-webkit-autofill:focus,
@@ -246,20 +233,16 @@ st.markdown("""
         transition: background-color 5000s ease-in-out 0s;
     }
 
-    /* Remove textos/dicas nativas abaixo das caixas */
     div[data-testid="stTextInput"] small,
     div[data-testid="stTextInput"] [data-aria-live="polite"] {
         display: none !important;
     }
 
-    /* 4. BOTÃO DE MOSTRAR/OCULTAR SENHA (OLHO) */
-    div[data-testid="stTextInput"] button,
-    div[data-testid="stTextInput"] button[aria-label*="password"],
-    div[data-testid="stTextInput"] button[aria-label*="Password"] {
+    /* Botão de mostrar/ocultar senha */
+    div[data-testid="stTextInput"] button {
         background-color: transparent !important;
         background: transparent !important;
         border: none !important;
-        border-radius: 0 !important;
         box-shadow: none !important;
         outline: none !important;
         color: #495057 !important;
@@ -267,10 +250,6 @@ st.markdown("""
         margin: 0 8px 0 0 !important;
         height: 24px !important;
         width: 24px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
     }
 
     div[data-testid="stTextInput"] button svg {
@@ -278,10 +257,9 @@ st.markdown("""
         height: 18px !important;
         fill: #495057 !important;
         color: #495057 !important;
-        background: transparent !important;
     }
 
-    /* 5. BOTÕES DE AÇÃO (CONECTAR / SOLICITAR ACESSO) */
+    /* Botões de formulário */
     div[data-testid="stFormSubmitButton"] {
         width: 100% !important;
     }
@@ -294,18 +272,12 @@ st.markdown("""
         border-radius: 8px !important;
         width: 100% !important;
         height: 42px !important;
-        transition: all 0.2s ease !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
     }
 
-    div[data-testid="stFormSubmitButton"] button:hover {
-        background-color: #F8F9FA !important;
-        border-color: #ADB5BD !important;
-    }
-
-    /* 6. LOGO EM LARGURA TOTAL E CENTRALIZADA */
+    /* Logo no login */
     div[data-testid="stImage"] {
         width: 100% !important;
         display: flex !important;
@@ -320,18 +292,78 @@ st.markdown("""
         object-fit: contain !important;
     }
 
-    /* Mensagem de Erro de Login */
     .login-error-msg {
         color: #DC3545 !important;
         font-size: 0.9rem !important;
         font-weight: 600 !important;
         text-align: center !important;
         margin-top: 12px !important;
-        margin-bottom: 0px !important;
         width: 100% !important;
     }
 
-    /* Layout Responsivo para Dispositivos Móveis */
+    /* 2. REGRAS EXCLUSIVAS DO CABEÇALHO DA TELA INICIAL NO CELULAR */
+    /* Garante alinhamento lado a lado no mobile para o topo do dashboard */
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+    }
+
+    /* Logo ocupa exatamente 1/3 da largura à esquerda no celular */
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:first-child {
+        width: 33.33% !important;
+        min-width: 33.33% !important;
+        max-width: 33.33% !important;
+        flex: 0 0 33.33% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+    }
+
+    /* Coluna do Popover ocupa o restante (2/3) e alinha todo o conteúdo à direita */
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:last-child {
+        width: 66.66% !important;
+        min-width: 66.66% !important;
+        max-width: 66.66% !important;
+        flex: 0 0 66.66% !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+    }
+
+    /* Ajuste visual do container da imagem da logo no cabeçalho pós-login */
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) div[data-testid="stImage"] {
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) div[data-testid="stImage"] img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+    }
+
+    /* Posicionamento do botão Popover do Menu */
+    div[data-testid="stPopover"] {
+        display: flex !important;
+        justify-content: flex-end !important;
+        width: auto !important;
+    }
+
+    div[data-testid="stPopover"] > button {
+        background-color: #FFFFFF !important;
+        color: #212529 !important;
+        border: 1px solid #CED4DA !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        padding: 6px 16px !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
+    }
+
     @media (max-width: 768px) {
         div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
             display: flex !important;
@@ -688,13 +720,14 @@ def classes_screen(): st.info("📌 Módulo de Classes em desenvolvimento.")
 def relatorios_screen(): st.info("📌 Módulo de Relatórios em desenvolvimento.")
 
 # ==============================================================================
-# PAINEL PRINCIPAL (DASHBOARD PÓS-LOGIN)
+# PAINEL PRINCIPAL (DASHBOARD PÓS-LOGIN - RECONSTRUÇÃO DA TELA INICIAL CELULAR)
 # ==============================================================================
 def dashboard_screen():
-    """Monta o cabeçalho e navegação após autenticação bem-sucedida."""
+    """Monta o cabeçalho alinhado e navegação após autenticação bem-sucedida."""
     user_info = st.session_state.user or {}
     eh_admin = user_info.get('Adm') == 'S'
     
+    # Lista de opções do menu principal
     menu_keys = ["Home", "Acolhimento", "Classes", "Relatórios"]
     if eh_admin:
         menu_keys.append("Administração")
@@ -704,6 +737,7 @@ def dashboard_screen():
     server_name_20 = server_name_full[:20]
     user_name = user_info.get('Nome') or user_info.get('Login') or 'Usuário'
 
+    # Divisão em colunas: 1/3 (logo à esquerda) e 2/3 (menu alinhado à direita na mesma linha)
     col_logo, col_menu = st.columns([1, 2], vertical_alignment="center")
     
     with col_logo:
@@ -713,8 +747,9 @@ def dashboard_screen():
             st.markdown("**🔗 Integra**")
             
     with col_menu:
-        with st.popover("🍔 Menu", use_container_width=False):
-            st.markdown("### 📌 Navegação")
+        # Popover contendo as opções do menu empilhadas sem títulos internos
+        with st.popover("Menu", use_container_width=False):
+            # Opções de navegação do sistema
             for opcao in menu_keys:
                 is_active = (st.session_state.menu_option == opcao)
                 btn_type = "primary" if is_active else "secondary"
@@ -723,7 +758,7 @@ def dashboard_screen():
                     st.rerun()
             
             st.markdown("---")
-            st.markdown("### 👤 Perfil do Usuário")
+            # Informações do usuário, servidor e logout posicionados ao fundo do popover
             st.markdown(f"**Usuário:** {user_name}")
             st.markdown(f"**Servidor:** {server_name_20}")
             st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
@@ -732,6 +767,7 @@ def dashboard_screen():
 
     st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
 
+    # Direcionamento de telas do menu selecionado
     if st.session_state.menu_option == "Home":
         home_screen()
     elif st.session_state.menu_option == "Acolhimento":
