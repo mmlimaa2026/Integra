@@ -108,11 +108,11 @@ if not st.session_state.is_mobile:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO UNIFICADO: FIXAÇÃO DE CABEÇALHO LADO A LADO E POPOVER À DIREITA
+# CSS CUSTOMIZADO UNIFICADO: ALINHAMENTO DO POPOVER E EXPANSÃO DA MOLDURA
 # ==============================================================================
 st.markdown("""
     <style>
-    /* 1. FORÇAR TEMA CLARO GLOBAL (SOBRESCREVE MODO ESCURO DO ANDROID/SAFARI) */
+    /* 1. CONFIGURAÇÃO DE MODO CLARO E MARGENS GLOBAIS */
     :root {
         color-scheme: light !important;
         --text-color: #212529 !important;
@@ -153,7 +153,7 @@ st.markdown("""
         box-sizing: border-box !important;
     }
 
-    /* 2. FORÇAR O CABEÇALHO COM POPOVER A MANTER-SE EM LINHA ÚNICA NO CELULAR */
+    /* 2. ALINHAMENTO DO CABEÇALHO E POPOVER À DIREITA NA CÉLULA */
     div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) {
         display: flex !important;
         flex-direction: row !important;
@@ -163,7 +163,7 @@ st.markdown("""
         width: 100% !important;
     }
 
-    /* Primeira coluna (Logo): exatamente 1/3 da largura */
+    /* Coluna da Logo (1/3 da largura) */
     div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:first-child {
         width: 33.33% !important;
         min-width: 33.33% !important;
@@ -174,7 +174,7 @@ st.markdown("""
         justify-content: flex-start !important;
     }
 
-    /* Segunda coluna (Menu Popover): 2/3 da largura alinhado totalmente à direita */
+    /* Coluna do Menu Popover (2/3 da largura) - Alinha o conteúdo à extrema direita */
     div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:last-child {
         width: 66.66% !important;
         min-width: 66.66% !important;
@@ -183,15 +183,54 @@ st.markdown("""
         display: flex !important;
         justify-content: flex-end !important;
         align-items: center !important;
+        text-align: right !important;
     }
 
+    /* Força o contêiner e o botão do Popover a colarem na margem direita */
     div[data-testid="stPopover"] {
         display: flex !important;
         justify-content: flex-end !important;
+        margin-left: auto !important;
         width: auto !important;
     }
 
-    /* 3. ESTILIZAÇÃO DOS BOTÕES */
+    div[data-testid="stPopover"] > button {
+        margin-left: auto !important;
+    }
+
+    /* 3. MOLDURA DE BOAS-VINDAS / CARDS EXPANDIDOS NA LARGURA TOTAL DO CELULAR */
+    div[data-testid="stVerticalBlockBorderWrapper"],
+    div[data-testid="stVerticalBlock"] > div[style*="border"],
+    .element-container:has(.stMarkdown) {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Forçar containers/cartões internos a ocuparem 100% sem compressão lateral */
+    @media (max-width: 768px) {
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            padding: 0.5rem !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+        }
+
+        /* Ajuste de formulários e botões móveis */
+        div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 0.5rem !important;
+            width: 100% !important;
+        }
+
+        div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+            width: 50% !important;
+            min-width: 50% !important;
+            flex: 1 1 50% !important;
+        }
+    }
+
+    /* 4. PADRONIZAÇÃO DE BOTÕES DA APLICAÇÃO */
     button,
     button[kind="secondary"],
     button[kind="primary"],
@@ -228,7 +267,7 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* 4. CAMPOS DE TEXTO E INPUTS DO FORMULÁRIO */
+    /* 5. CAMPOS DE TEXTO E ENTRADAS */
     div[data-testid="stForm"] {
         background-color: #FFFFFF !important;
         border: 1px solid #E0E0E0 !important;
@@ -256,7 +295,7 @@ st.markdown("""
         border-radius: 8px !important;
     }
 
-    /* 5. POPOVER (MENU SUSPENSO) - FUNDO CINZA CLARO E TEXTO PRETO */
+    /* 6. CONTEÚDO DO POPOVER (MENU SUSPENSO CINZA CLARO / LETRAS PRETAS) */
     div[data-testid="stPopoverBody"],
     div[data-baseweb="popover"],
     div[data-baseweb="popover"] > div,
@@ -309,21 +348,6 @@ st.markdown("""
     div[data-testid="stPopoverBody"] button[data-testid="stBaseButton-primary"] {
         background-color: #E2E6EA !important;
         border: 1.5px solid #6C757D !important;
-    }
-
-    @media (max-width: 768px) {
-        div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            gap: 0.5rem !important;
-            width: 100% !important;
-        }
-
-        div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-            width: 50% !important;
-            min-width: 50% !important;
-            flex: 1 1 50% !important;
-        }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -666,10 +690,10 @@ def classes_screen(): st.info("📌 Módulo de Classes em desenvolvimento.")
 def relatorios_screen(): st.info("📌 Módulo de Relatórios em desenvolvimento.")
 
 # ==============================================================================
-# PAINEL PRINCIPAL (CABEÇALHO COM LOGO EM 1/3 E POPOVER À DIREITA EM 2/3)
+# PAINEL PRINCIPAL
 # ==============================================================================
 def dashboard_screen():
-    """Exibe a tela principal com a logo em 1/3 e o popover totalmente à direita."""
+    """Exibe a tela principal com a logo em 1/3 e o popover colado à extrema direita."""
     user_info = st.session_state.user or {}
     eh_admin = user_info.get('Adm') == 'S'
     
@@ -682,7 +706,7 @@ def dashboard_screen():
     server_name_20 = server_name_full[:20]
     user_name = user_info.get('Nome') or user_info.get('Login') or 'Usuário'
 
-    # Divisão exata de 2 colunas: 1/3 (logo) e 2/3 (menu)
+    # Divisão 1:2 (33% para logo, 66% para a célula do menu)
     col_logo, col_menu = st.columns([1, 2], vertical_alignment="center")
     
     with col_logo:
@@ -692,6 +716,7 @@ def dashboard_screen():
             st.markdown("**🔗 Integra**")
             
     with col_menu:
+        # Popover alinhado à extrema direita dentro da célula
         with st.popover("Menu", use_container_width=False):
             for opcao in menu_keys:
                 is_active = (st.session_state.menu_option == opcao)
