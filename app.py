@@ -11,25 +11,26 @@ from datetime import datetime
 import re
 import pandas as pd
 import logging
+import streamlit.components.v1 as components
 
-# Configuração de Logging
+# Configuração de Logging do sistema
 logger = logging.getLogger(__name__)
 
-# Importação das telas dos módulos
+# Importação das telas e módulos do projeto
 from acolhimentos import acolhimento_screen
 from home import home_screen
 from administracao import administracao_screen
 
-# Configuração da página Streamlit
+# Configuração inicial da página no Streamlit
 st.set_page_config(
     page_title="Integra | Sistema de Novos Membros",
     page_icon="🔗",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 def get_db_config():
-    """Recupera configurações de banco de dados do st.secrets."""
+    """Recupera as credenciais do banco de dados PostgreSQL do st.secrets."""
     try:
         return st.secrets["postgres"]
     except KeyError:
@@ -37,13 +38,13 @@ def get_db_config():
         return None
 
 def get_email_config():
-    """Recupera configurações de e-mail do st.secrets."""
+    """Recupera as configurações do servidor SMTP de e-mail do st.secrets."""
     try:
         return st.secrets["email"]
     except KeyError:
         return None
 
-# Inicialização de variáveis no session_state
+# Inicialização de variáveis de controle no st.session_state
 if 'db_connected' not in st.session_state:
     st.session_state.db_connected = False
 if 'conn' not in st.session_state:
@@ -68,234 +69,135 @@ if 'id_column' not in st.session_state:
     st.session_state.id_column = None
 if 'menu_option' not in st.session_state:
     st.session_state.menu_option = "Home"
+if 'is_mobile' not in st.session_state:
+    st.session_state.is_mobile = False
+
+# Controle de alertas temporários de formulário
+if 'temp_alert_message' not in st.session_state:
+    st.session_state.temp_alert_message = None
+if 'temp_alert_type' not in st.session_state:
+    st.session_state.temp_alert_type = None
 
 is_logged = st.session_state.logged_in
 
 # ==============================================================================
-# CSS CUSTOMIZADO RESPONSIVO (CORREÇÃO DEFINITIVA DO MENU E COMBO MOBILE)
+# DETECÇÃO AUTOMÁTICA DE DISPOSITIVOS MÓVEIS (MOBILE)
+# ==============================================================================
+if is_logged and not st.session_state.is_mobile:
+    detection_script = """
+    <script>
+    const ua = navigator.userAgent;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+    if (isMobile) {
+        const currentUrl = new URL(window.location.href);
+        if (!currentUrl.searchParams.has('mobile_detected')) {
+            currentUrl.searchParams.set('mobile_detected', 'true');
+            window.location.replace(currentUrl.toString());
+        }
+    }
+    </script>
+    """
+    components.html(detection_script, height=0, width=0)
+    
+    queryParams = st.query_params
+    if "mobile_detected" in queryParams:
+        st.session_state.is_mobile = True
+
+# ==============================================================================
+# CSS CUSTOMIZADO: REMOÇÃO EFETIVA DO ESPAÇO SUPERIOR E ALINHAMENTOS
 # ==============================================================================
 st.markdown(f"""
     <style>
-    /* Reset Geral */
+    /* Reset total de margens e preenchimentos da página */
     html, body, [data-testid="stApp"] {{
         margin: 0 !important;
         padding: 0 !important;
         height: 100% !important;
     }}
 
-    header[data-testid="stHeader"] {{
+    /* Oculta o cabeçalho original e barra nativa do Streamlit */
+    header[data-testid="stHeader"], [data-testid="stHeader"] {{
         display: none !important;
-        visibility: hidden !important;
         height: 0px !important;
+        visibility: hidden !important;
     }}
     
     .stDeployButton, #MainMenu {{
         display: none !important;
     }}
 
-    .stApp {{
-        background-color: #FFFFFF !important;
-    }}
-
-    /* Container Principal da View */
+    /* Remove o padding superior do container geral de visualização */
     div[data-testid="stAppViewContainer"] {{
-        display: {"flex !important" if not is_logged else "block !important"};
-        flex-direction: {"column !important" if not is_logged else "initial !important"};
-        justify-content: {"center !important" if not is_logged else "flex-start !important"};
-        align-items: {"center !important" if not is_logged else "stretch !important"};
-        min-height: 100vh !important;
-        width: 100% !important;
+        padding-top: 0rem !important;
+        margin-top: 0rem !important;
     }}
 
-    /* Ajuste do Container de Conteúdo */
-    div[data-testid="stMainBlockContainer"], .block-container {{
-        padding-top: 0.5rem !important;
+    div[data-testid="stMain"] {{
+        padding-top: 0rem !important;
+        margin-top: 0rem !important;
+    }}
+
+    /* Zera rigorosamente o padding-top do bloco principal para colar o conteúdo no topo */
+    .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {{
+        padding-top: 0.2rem !important;
         padding-bottom: 1rem !important;
-        padding-left: {"1rem !important" if not is_logged else "1rem !important"};
-        padding-right: {"1rem !important" if not is_logged else "1rem !important"};
+        padding-left: {"1rem !important" if not is_logged else "1.5rem !important"};
+        padding-right: {"1rem !important" if not is_logged else "1.5rem !important"};
+        margin-top: 0rem !important;
         width: {"60vw !important" if not is_logged else "100% !important"};
         max-width: {"550px !important" if not is_logged else "100% !important"};
         min-width: {"320px !important" if not is_logged else "100% !important"};
-        margin: {"0 auto !important" if not is_logged else "0 !important"};
-        display: {"flex !important" if not is_logged else "block !important"};
-        flex-direction: column !important;
-        align-items: {"center !important" if not is_logged else "stretch !important"};
     }}
 
-    /* Logo em Login e Pós-Login */
+    /* Ajuste de alinhamento da imagem da Logo */
     div[data-testid="stImage"] {{
         display: flex !important;
         justify-content: {"center !important" if not is_logged else "flex-start !important"};
         align-items: center !important;
-        width: 100% !important;
-        margin: 0 auto 10px auto !important;
+        margin: 0 !important;
     }}
 
     div[data-testid="stImage"] > img {{
         display: block !important;
         margin: {"0 auto !important" if not is_logged else "0 !important"};
-        max-width: {"260px !important" if not is_logged else "180px !important"};
+        max-width: {"260px !important" if not is_logged else "160px !important"};
         height: auto !important;
     }}
 
-    /* --------------------------------------------------------------------------
-       CONTAINER DA BARRA SUPERIOR (FORÇANDO FUNDO CLARO E LIMPO)
-       -------------------------------------------------------------------------- */
-    div[data-testid="column"]:nth-of-type(2) {{
-        background-color: #F8F9FA !important;
-        border: 1px solid #DEE2E6 !important;
-        border-radius: 12px !important;
-        padding: 8px 12px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        min-height: 55px !important;
-        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.04) !important;
-        margin-bottom: 10px !important;
-    }}
-
-    div[data-testid="column"]:nth-of-type(2) div[data-testid="stHorizontalBlock"] {{
-        width: 100% !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-    }}
-
-    /* --------------------------------------------------------------------------
-       BOTÕES DO MENU (PILLS) - FUNDO CLARO E TEXTO ESCURO NITIDO
-       -------------------------------------------------------------------------- */
-    div[data-testid="stPills"] button,
-    div[data-testid="stPills"] [role="option"],
-    div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] button,
-    div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] [role="option"] {{
-        background-color: #E9ECEF !important;
-        color: #212529 !important; /* Texto escuro bem legível */
-        border: 1px solid #CED4DA !important;
-        border-radius: 20px !important;
-        padding: 6px 12px !important;
-        font-size: 0.85rem !important;
-        font-weight: 600 !important;
-        margin-right: 4px !important;
-        white-space: nowrap !important;
-    }}
-
-    div[data-testid="stPills"] button span,
-    div[data-testid="stPills"] [role="option"] span,
-    div[data-testid="stPills"] p {{
-        color: #212529 !important;
-    }}
-
-    /* Item Ativo (Selecionado) no Menu */
-    div[data-testid="stPills"] button[aria-selected="true"],
-    div[data-testid="stPills"] [role="option"][aria-selected="true"],
-    div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] button[aria-selected="true"],
-    div[data-testid="column"]:nth-of-type(2) div[data-testid="stPills"] [role="option"][aria-selected="true"] {{
-        background-color: #212529 !important;
-        color: #FFFFFF !important;
-        font-weight: bold !important;
-        border-color: #212529 !important;
-    }}
-
-    div[data-testid="stPills"] button[aria-selected="true"] span,
-    div[data-testid="stPills"] [role="option"][aria-selected="true"] span,
-    div[data-testid="stPills"] button[aria-selected="true"] p {{
-        color: #FFFFFF !important;
-    }}
-
-    /* --------------------------------------------------------------------------
-       DROPDOWN / COMBO DE USUÁRIO - FUNDO CLARO E TEXTO ESCURO
-       -------------------------------------------------------------------------- */
-    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] > div {{
-        background-color: #E9ECEF !important;
-        border: 1px solid #CED4DA !important;
-        color: #212529 !important;
-        border-radius: 8px !important;
-        min-height: 38px !important;
-    }}
-
-    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] span {{
-        color: #212529 !important;
-        font-weight: 600 !important;
-        font-size: 0.85rem !important;
-    }}
-
-    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] svg {{
-        fill: #212529 !important;
-    }}
-
-    div[data-testid="stPills"] {{
-        scrollbar-width: none !important;
-        overflow-x: auto !important;
-    }}
-    div[data-testid="stPills"]::-webkit-scrollbar {{
-        display: none !important;
-    }}
-
-    /* --------------------------------------------------------------------------
-       GARANTINDO TEXTO PRETO/ESCURO NOS TEXTOS GERAIS E CARTÕES
-       -------------------------------------------------------------------------- */
-    .element-container, .stMarkdown, p, span, h1, h2, h3, div {{
-        color: #212529;
-    }}
-
-    div[data-testid="stVerticalBlock"] div[data-testid="stContainer"] {{
-        color: #212529 !important;
-    }}
-
-    /* Inputs de formulário padrão */
-    .stTextInput label {{
-        color: #000000 !important;
-        font-weight: 600 !important;
-    }}
-    
-    .stTextInput input {{
+    /* Estilização dos botões de formulário */
+    div[data-testid="stForm"] button {{
         background-color: #FFFFFF !important;
+        color: #000000 !important;
+        font-weight: 700 !important;
         border: 1.5px solid #CED4DA !important;
         border-radius: 8px !important;
+        transition: background-color 0.1s ease, border-color 0.1s ease !important;
+    }}
+
+    div[data-testid="stForm"] button:hover {{
+        background-color: #F1F3F5 !important;
+        border-color: #ADB5BD !important;
+        color: #000000 !important;
+    }}
+
+    /* Campos de entrada de texto */
+    .stTextInput input, .stPasswordInput input {{
+        background-color: #F8F9FA !important;
+        border: 1px solid #CED4DA !important;
+        border-radius: 8px !important;
         color: #212529 !important;
         padding: 8px 12px !important;
     }}
 
-    /* --------------------------------------------------------------------------
-       REGRAS EXCLUSIVAS DE RESPONSIVIDADE MOBILE (ANDROID / IOS)
-       -------------------------------------------------------------------------- */
-    @media (max-width: 768px) {{
-        div[data-testid="stMainBlockContainer"], .block-container {{
-            padding-left: 0.4rem !important;
-            padding-right: 0.4rem !important;
-            padding-top: 0.4rem !important;
-            width: 100% !important;
-            max-width: 100% !important;
-        }}
+    /* Força alinhamento à direita do container da última coluna (Ícone de Usuário) */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child {{
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+    }}
 
-        h1 {{
-            font-size: 1.3rem !important;
-            line-height: 1.25 !important;
-            word-wrap: break-word !important;
-        }}
-
-        h2 {{
-            font-size: 1.1rem !important;
-            line-height: 1.3 !important;
-        }}
-
-        h3 {{
-            font-size: 1.0rem !important;
-        }}
-
-        p, span, li {{
-            font-size: 0.88rem !important;
-            line-height: 1.35 !important;
-        }}
-
-        div[data-testid="column"]:nth-of-type(2) {{
-            padding: 6px 6px !important;
-        }}
-
-        div[data-testid="stPills"] button,
-        div[data-testid="stPills"] [role="option"] {{
-            padding: 4px 8px !important;
-            font-size: 0.75rem !important;
-        }}
+    .element-container, .stMarkdown, p, span, h1, h2, h3, div {{
+        color: #212529;
     }}
 
     footer {{
@@ -305,9 +207,11 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 def hash_password(password):
+    """Gera o hash SHA-256 para senhas de usuários."""
     return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
 def connect_to_database():
+    """Realiza a conexão com o banco de dados PostgreSQL."""
     db_config = get_db_config()
     if not db_config:
         return None, "Configuração de Secrets do banco de dados não foi encontrada."
@@ -327,6 +231,7 @@ def connect_to_database():
         return None, "Falha ao conectar com o servidor do banco de dados."
 
 def get_table_structure(conn):
+    """Mapeia os campos da tabela SolicitacaoAcesso."""
     try:
         cursor = conn.cursor()
         cursor.execute("""
@@ -338,7 +243,6 @@ def get_table_structure(conn):
             ORDER BY ordinal_position
         """)
         columns = cursor.fetchall()
-        
         result = []
         id_column = None
         for col in columns:
@@ -351,22 +255,17 @@ def get_table_structure(conn):
             })
             if col[4] == 'YES':
                 id_column = col[0]
-        
         return result, id_column
     except Exception as e:
         logger.error(f"Erro ao obter estrutura da tabela: {e}")
         return None, None
 
 def buscar_usuario_por_login(conn, login):
+    """Busca os dados do usuário no schema 'integra' pelo Login."""
     try:
         cursor = conn.cursor()
-        cursor.execute('''
-            SELECT * FROM integra."Usuario" 
-            WHERE "Login" = %s
-        ''', (login,))
-        
+        cursor.execute('SELECT * FROM integra."Usuario" WHERE "Login" = %s', (login,))
         usuario = cursor.fetchone()
-        
         if usuario:
             colunas = [desc[0] for desc in cursor.description]
             return dict(zip(colunas, usuario))
@@ -376,11 +275,10 @@ def buscar_usuario_por_login(conn, login):
         return None
 
 def autenticar_usuario(conn, login, senha):
+    """Valida o login e a senha do usuário informados na tela de acesso."""
     usuario = buscar_usuario_por_login(conn, login)
-    
     if not usuario:
         return None, "Login inválido."
-    
     senha_hash = hash_password(senha)
     if usuario.get('Senha') == senha_hash or usuario.get('Senha') == senha:
         return usuario, "Usuário autenticado com sucesso."
@@ -388,68 +286,43 @@ def autenticar_usuario(conn, login, senha):
         return None, "Senha incorreta."
 
 def enviar_email_notificacao(nome, email, celular):
+    """Notifica a administração via e-mail sobre novas solicitações."""
     email_config = get_email_config()
-    
     if not email_config:
         return False, "Configurações de e-mail ausentes."
-        
     try:
         msg = MIMEMultipart()
         msg['From'] = email_config['remetente']
         msg['To'] = email_config['destinatario']
         msg['Subject'] = f"Nova Solicitação de Acesso - {nome}"
-        
         corpo = f"""
         <html>
         <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
-            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h2 style="color: #F7D44A; text-align: center; border-bottom: 2px solid #F7D44A; padding-bottom: 10px;">
-                    🔗 Nova Solicitação de Acesso
-                </h2>
-                <div style="padding: 20px 0;">
-                    <p style="font-size: 16px; color: #333;"><strong>Uma nova solicitação de acesso foi recebida:</strong></p>
-                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                        <tr>
-                            <td style="padding: 10px; background-color: #f9f9f9; font-weight: bold; border: 1px solid #ddd;">Nome:</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{nome}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; background-color: #f9f9f9; font-weight: bold; border: 1px solid #ddd;">E-mail:</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{email}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; background-color: #f9f9f9; font-weight: bold; border: 1px solid #ddd;">Celular:</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{celular}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; background-color: #f9f9f9; font-weight: bold; border: 1px solid #ddd;">Data da Solicitação:</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{datetime.now().strftime('%d/%m/%Y %H:%M:%S')}</td>
-                        </tr>
-                    </table>
-                </div>
+            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 10px;">
+                <h2 style="color: #F7D44A; text-align: center;">🔗 Nova Solicitação de Acesso</h2>
+                <p><strong>Nome:</strong> {nome}</p>
+                <p><strong>E-mail:</strong> {email}</p>
+                <p><strong>Celular:</strong> {celular}</p>
             </div>
         </body>
         </html>
         """
-        
         msg.attach(MIMEText(corpo, 'html'))
-        
         server = smtplib.SMTP(email_config['smtp_server'], email_config['smtp_port'])
         server.starttls()
         server.login(email_config['email'], email_config['password'])
         server.send_message(msg)
         server.quit()
-        
         return True, "E-mail enviado com sucesso!"
     except Exception as e:
         logger.error(f"Erro ao enviar e-mail: {e}")
         return False, "Erro ao processar o envio de e-mail."
 
 def gravar_solicitacao(conn, nome, email, celular):
+    """Grava o registro da solicitação de acesso no banco de dados."""
     try:
         cursor = conn.cursor()
         data_atual = datetime.now()
-        
         celular_limpo = ''.join(filter(str.isdigit, celular))
         if len(celular_limpo) == 10:
             celular_limpo = '9' + celular_limpo
@@ -463,9 +336,6 @@ def gravar_solicitacao(conn, nome, email, celular):
         
         columns = st.session_state.table_columns
         id_column = st.session_state.id_column
-        
-        if not columns or not id_column:
-            return False, "Estrutura da tabela inválida"
         
         col_names = [col['name'] for col in columns]
         insert_fields = []
@@ -495,17 +365,16 @@ def gravar_solicitacao(conn, nome, email, celular):
             VALUES ({', '.join(insert_params)})
             RETURNING "{id_column}"
         '''
-        
         cursor.execute(query, tuple(insert_values))
         id_solicitacao = cursor.fetchone()[0]
         conn.commit()
-        
         return True, id_solicitacao
     except Exception as e:
         logger.error(f"Erro ao gravar solicitação: {e}")
         return False, "Erro interno ao gravar solicitação."
 
 def logout():
+    """Encerra a sessão ativa do usuário e reseta variáveis de estado."""
     if st.session_state.conn:
         try:
             st.session_state.conn.close()
@@ -517,6 +386,9 @@ def logout():
     st.session_state.conn = None
     st.session_state.show_request_form = False
     st.session_state.menu_option = "Home"
+    st.session_state.temp_alert_message = None
+    st.session_state.temp_alert_type = None
+    st.session_state.is_mobile = False
     st.rerun()
 
 MENU_ICONS = {
@@ -527,42 +399,8 @@ MENU_ICONS = {
     "Administração": "⚙️ Administração"
 }
 
-def render_menu():
-    user_info = st.session_state.get('user', {}) or {}
-    eh_admin = user_info.get('Adm') == 'S'
-
-    menu_keys = ["Home", "Acolhimento", "Classes", "Relatórios"]
-    if eh_admin:
-        menu_keys.append("Administração")
-    
-    if st.session_state.menu_option not in menu_keys:
-        st.session_state.menu_option = "Home"
-
-    try:
-        escolha = st.pills(
-            "Navegação",
-            options=menu_keys,
-            format_func=lambda x: MENU_ICONS.get(x, x),
-            default=st.session_state.menu_option,
-            label_visibility="collapsed",
-            key="menu_pills_nav"
-        )
-    except AttributeError:
-        escolha = st.radio(
-            "Navegação",
-            options=menu_keys,
-            format_func=lambda x: MENU_ICONS.get(x, x),
-            index=menu_keys.index(st.session_state.menu_option) if st.session_state.menu_option in menu_keys else 0,
-            horizontal=True,
-            label_visibility="collapsed",
-            key="menu_radio_nav"
-        )
-
-    if escolha and escolha != st.session_state.menu_option:
-        st.session_state.menu_option = escolha
-        st.rerun()
-
 def login_screen():
+    """Exibe a tela inicial de autenticação e solicitação de acesso."""
     if os.path.exists("LogoIntegra.png"):
         st.image("LogoIntegra.png")
     else:
@@ -585,10 +423,23 @@ def login_screen():
         with btn_col2:
             request_button = st.form_submit_button("📝 Solicitar Acesso", use_container_width=True)
         
+        if st.session_state.temp_alert_message:
+            st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+            if st.session_state.temp_alert_type == "success":
+                st.success(st.session_state.temp_alert_message)
+            else:
+                st.error(st.session_state.temp_alert_message)
+            
+            time.sleep(3)
+            st.session_state.temp_alert_message = None
+            st.session_state.temp_alert_type = None
+            st.rerun()
+        
         if connect_button:
             if not login or not senha:
-                st.error("❌ Por favor, preencha todos os campos!")
-                return
+                st.session_state.temp_alert_message = "❌ Por favor, preencha todos os campos!"
+                st.session_state.temp_alert_type = "error"
+                st.rerun()
             
             if not st.session_state.db_connected or not st.session_state.conn:
                 conn, error = connect_to_database()
@@ -599,8 +450,9 @@ def login_screen():
                     st.session_state.table_columns = columns
                     st.session_state.id_column = id_column
                 else:
-                    st.error(f"❌ {error}")
-                    return
+                    st.session_state.temp_alert_message = f"❌ {error}"
+                    st.session_state.temp_alert_type = "error"
+                    st.rerun()
             
             if st.session_state.db_connected and st.session_state.conn:
                 usuario, mensagem = autenticar_usuario(st.session_state.conn, login, senha)
@@ -608,14 +460,17 @@ def login_screen():
                     st.session_state.user = usuario
                     st.session_state.logged_in = True
                     st.session_state.menu_option = "Home"
-                    st.success(f"✅ {mensagem}")
-                    time.sleep(1)
+                    st.session_state.temp_alert_message = f"✅ {mensagem}"
+                    st.session_state.temp_alert_type = "success"
                     st.rerun()
                 else:
-                    st.error(f"❌ {mensagem}")
+                    st.session_state.temp_alert_message = f"❌ {mensagem}"
+                    st.session_state.temp_alert_type = "error"
+                    st.rerun()
         
         if request_button:
             st.session_state.show_request_form = True
+            st.session_state.temp_alert_message = None
             st.rerun()
     
     if st.session_state.show_request_form:
@@ -636,17 +491,20 @@ def login_screen():
             
             if cancelar:
                 st.session_state.show_request_form = False
+                st.session_state.temp_alert_message = None
                 st.rerun()
             
             if enviar_solicitacao:
                 if not nome_solicitante or not email_solicitante or not celular_solicitante:
-                    st.error("❌ Por favor, preencha todos os campos obrigatórios!")
-                    return
+                    st.session_state.temp_alert_message = "❌ Por favor, preencha todos os campos obrigatórios!"
+                    st.session_state.temp_alert_type = "error"
+                    st.rerun()
                 
                 celular_limpo = ''.join(filter(str.isdigit, celular_solicitante))
                 if len(celular_limpo) != 11:
-                    st.error("❌ O celular deve ter exatamente 11 dígitos (DDD + 9 + número)!")
-                    return
+                    st.session_state.temp_alert_message = "❌ O celular deve ter exatamente 11 dígitos (DDD + 9 + número)!"
+                    st.session_state.temp_alert_type = "error"
+                    st.rerun()
                 
                 if not st.session_state.db_connected or not st.session_state.conn:
                     conn, error = connect_to_database()
@@ -654,64 +512,95 @@ def login_screen():
                         st.session_state.conn = conn
                         st.session_state.db_connected = True
                     else:
-                        st.error(f"❌ {error}")
-                        return
+                        st.session_state.temp_alert_message = f"❌ {error}"
+                        st.session_state.temp_alert_type = "error"
+                        st.rerun()
                 
                 if st.session_state.db_connected and st.session_state.conn:
                     sucesso_banco, resultado = gravar_solicitacao(
                         st.session_state.conn, nome_solicitante, email_solicitante, celular_limpo
                     )
                     if sucesso_banco:
-                        st.success(f"✅ Solicitação registrada com sucesso! ID: {resultado}")
                         enviar_email_notificacao(nome_solicitante, email_solicitante, celular_limpo)
                         st.session_state.show_request_form = False
-                        time.sleep(2)
+                        st.session_state.temp_alert_message = f"✅ Solicitação registrada com sucesso! ID: {resultado}"
+                        st.session_state.temp_alert_type = "success"
                         st.rerun()
                     else:
-                        st.error(f"❌ {resultado}")
+                        st.session_state.temp_alert_message = f"❌ {resultado}"
+                        st.session_state.temp_alert_type = "error"
+                        st.rerun()
 
 def classes_screen(): st.info("📌 Módulo de Classes em desenvolvimento.")
 def relatorios_screen(): st.info("📌 Módulo de Relatórios em desenvolvimento.")
 
 def dashboard_screen():
-    user_info = st.session_state.user
+    """Monta a interface principal pós-login com menu centralizado e perfil à direita."""
+    user_info = st.session_state.user or {}
+    eh_admin = user_info.get('Adm') == 'S'
     
-    col_logo, col_navbar = st.columns([1.5, 8.5], vertical_alignment="center")
-    
-    with col_logo:
-        if os.path.exists("LogoIntegra.png"):
-            st.image("LogoIntegra.png")
-        else:
-            st.markdown("""
-                <h2 style="color: #212529 !important; font-size: 1.5rem !important; margin: 0 !important; font-weight: 800 !important;">🔗 Integra</h2>
-            """, unsafe_allow_html=True)
+    menu_keys = ["Home", "Acolhimento", "Classes", "Relatórios"]
+    if eh_admin:
+        menu_keys.append("Administração")
+
+    db_config = get_db_config()
+    server_name_full = db_config.get('host', 'Desconhecido') if db_config else 'Desconhecido'
+    server_name_20 = server_name_full[:20]
+    user_name = user_info.get('Nome') or user_info.get('Login') or 'Usuário'
+
+    # Interface responsiva para mobile via sidebar
+    if st.session_state.is_mobile:
+        with st.sidebar:
+            st.markdown("### 🍔 Menu Principal")
+            st.markdown("---")
+            for opcao in menu_keys:
+                if st.button(MENU_ICONS.get(opcao, opcao), use_container_width=True, key=f"mob_{opcao}"):
+                    st.session_state.menu_option = opcao
+                    st.rerun()
             
-    with col_navbar:
-        nav_col1, nav_col2 = st.columns([7.8, 2.2], vertical_alignment="center")
-        
-        with nav_col1:
-            render_menu()
-            
-        with nav_col2:
-            # Combo enxuta exibindo apenas o ícone de perfil no mobile para otimizar espaço
-            user_options = [
-                "👤",
-                "🚪 Sair"
-            ]
-            
-            selected_user_action = st.selectbox(
-                "Usuário",
-                options=user_options,
-                index=0,
-                label_visibility="collapsed",
-                key="user_dropdown_menu"
-            )
-            
-            if selected_user_action == "🚪 Sair":
+            st.markdown("---")
+            st.markdown(f"👤 **Usuário:** {user_name}")
+            st.markdown(f"🖥️ **Servidor:** {server_name_20}")
+            st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+            if st.button("🚪 Sair do Sistema", use_container_width=True, key="mob_logout"):
                 logout()
 
-    st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
+        if os.path.exists("LogoIntegra.png"):
+            st.image("LogoIntegra.png", width=140)
+        else:
+            st.markdown("### 🔗 Integra")
+    else:
+        # ESTRUTURA DE BARRA DE NAVEGAÇÃO: LOGO (ESQUERDA), MENU (CENTRO) E PERFIL (DIREITA)
+        col_logo, col_menu, col_user = st.columns([1.8, 7.2, 1.0], vertical_alignment="center")
+        
+        with col_logo:
+            if os.path.exists("LogoIntegra.png"):
+                st.image("LogoIntegra.png")
+            else:
+                st.markdown("### 🔗 Integra")
+                
+        with col_menu:
+            cols_nav = st.columns(len(menu_keys))
+            for idx, opcao in enumerate(menu_keys):
+                with cols_nav[idx]:
+                    is_active = (st.session_state.menu_option == opcao)
+                    btn_type = "primary" if is_active else "secondary"
+                    if st.button(MENU_ICONS.get(opcao, opcao), use_container_width=True, type=btn_type, key=f"btn_nav_{opcao}"):
+                        st.session_state.menu_option = opcao
+                        st.rerun()
+                        
+        with col_user:
+            # Popover de usuário perfeitamente alinhado à extrema direita via CSS da coluna
+            with st.popover("👤", use_container_width=False):
+                st.markdown(f"**Usuário:** {user_name}")
+                st.markdown(f"**Servidor:** {server_name_20}")
+                st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
+                if st.button("🚪 Sair do Sistema", use_container_width=True, key="desktop_logout_btn"):
+                    logout()
 
+    st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
+
+    # Roteamento de telas dos módulos selecionados
     if st.session_state.menu_option == "Home":
         home_screen()
     elif st.session_state.menu_option == "Acolhimento":
@@ -720,7 +609,7 @@ def dashboard_screen():
         classes_screen()
     elif st.session_state.menu_option == "Relatórios":
         relatorios_screen()
-    elif st.session_state.menu_option == "Administração" and (user_info.get('Adm') == 'S'):
+    elif st.session_state.menu_option == "Administração" and eh_admin:
         administracao_screen()
 
 def main():
