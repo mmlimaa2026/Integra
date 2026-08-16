@@ -108,11 +108,11 @@ if not st.session_state.is_mobile:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO UNIFICADO: ALINHAMENTO DO POPOVER E EXPANSÃO DA MOLDURA
+# CSS CUSTOMIZADO PARA MOVER APENAS O BOTÃO DE MENU À DIREITA
 # ==============================================================================
 st.markdown("""
     <style>
-    /* 1. CONFIGURAÇÃO DE MODO CLARO E MARGENS GLOBAIS */
+    /* 1. CONFIGURAÇÕES GERAIS DE TELA E CORES */
     :root {
         color-scheme: light !important;
         --text-color: #212529 !important;
@@ -124,16 +124,11 @@ st.markdown("""
     [data-testid="stMain"], .main {
         background-color: #FFFFFF !important;
         color: #212529 !important;
+        width: 100vw !important;
         max-width: 100vw !important;
-        width: 100% !important;
         overflow-x: hidden !important;
         margin: 0 !important;
         padding: 0 !important;
-        box-sizing: border-box !important;
-    }
-
-    *, *:before, *:after {
-        box-sizing: border-box !important;
     }
 
     header[data-testid="stHeader"], [data-testid="stHeader"], .stDeployButton, #MainMenu, footer {
@@ -144,17 +139,16 @@ st.markdown("""
 
     .main .block-container, div[data-testid="stMainBlockContainer"], .block-container {
         width: 100% !important;
-        max-width: 100vw !important;
-        padding-top: 0.8rem !important;
+        max-width: 100% !important;
+        padding-top: 0.5rem !important;
         padding-bottom: 1rem !important;
-        padding-left: 0.5rem !important;
-        padding-right: 0.5rem !important;
-        margin: 0 auto !important;
-        box-sizing: border-box !important;
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+        margin: 0 !important;
     }
 
-    /* 2. ALINHAMENTO DO CABEÇALHO E POPOVER À DIREITA NA CÉLULA */
-    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) {
+    /* 2. ALINHAMENTO DO CABEÇALHO HORIZONTAL DA LOGO E MENU */
+    div[data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
@@ -163,82 +157,105 @@ st.markdown("""
         width: 100% !important;
     }
 
-    /* Coluna da Logo (1/3 da largura) */
-    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:first-child {
-        width: 33.33% !important;
-        min-width: 33.33% !important;
-        max-width: 33.33% !important;
-        flex: 0 0 33.33% !important;
+    /* Primeira Coluna (Logo) */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child {
+        width: 45% !important;
+        min-width: 45% !important;
+        max-width: 45% !important;
+        flex: 0 0 45% !important;
         display: flex !important;
         align-items: center !important;
         justify-content: flex-start !important;
     }
 
-    /* Coluna do Menu Popover (2/3 da largura) - Alinha o conteúdo à extrema direita */
-    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:last-child {
-        width: 66.66% !important;
-        min-width: 66.66% !important;
-        max-width: 66.66% !important;
-        flex: 0 0 66.66% !important;
+    /* Segunda Coluna (Contém o Popover) */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child {
+        width: 55% !important;
+        min-width: 55% !important;
+        max-width: 55% !important;
+        flex: 0 0 55% !important;
         display: flex !important;
         justify-content: flex-end !important;
         align-items: center !important;
-        text-align: right !important;
     }
 
-    /* Força o contêiner e o botão do Popover a colarem na margem direita */
+    /* 3. MOVER APENAS O BOTÃO DO MENU PARA A EXTREMA DIREITA */
     div[data-testid="stPopover"] {
         display: flex !important;
         justify-content: flex-end !important;
-        margin-left: auto !important;
-        width: auto !important;
+        width: 100% !important;
     }
 
+    /* Aplica o alinhamento à direita estritamente no elemento botão */
     div[data-testid="stPopover"] > button {
         margin-left: auto !important;
+        margin-right: 0 !important;
+        display: inline-block !important;
     }
 
-    /* 3. MOLDURA DE BOAS-VINDAS / CARDS EXPANDIDOS NA LARGURA TOTAL DO CELULAR */
+    /* 4. POSICIONAMENTO DA CAIXA POPUP (MANTIDA NA POSIÇÃO PADRÃO) */
+    div[data-baseweb="popover"] {
+        background-color: #F0F2F6 !important;
+        border: 1px solid #CED4DA !important;
+        border-radius: 12px !important;
+        color: #212529 !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    div[data-testid="stPopoverBody"] {
+        background-color: #F0F2F6 !important;
+        color: #212529 !important;
+        border-radius: 12px !important;
+    }
+
+    div[data-testid="stPopoverBody"] p,
+    div[data-testid="stPopoverBody"] span,
+    div[data-testid="stPopoverBody"] div,
+    div[data-testid="stPopoverBody"] strong {
+        color: #212529 !important;
+        -webkit-text-fill-color: #212529 !important;
+    }
+
+    div[data-testid="stPopoverBody"] button {
+        background-color: #FFFFFF !important;
+        color: #212529 !important;
+        border: 1px solid #CED4DA !important;
+        border-radius: 8px !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+        width: 100% !important;
+    }
+
+    /* 5. MOLDURA DE CONTEÚDO (BOAS-VINDAS) */
     div[data-testid="stVerticalBlockBorderWrapper"],
-    div[data-testid="stVerticalBlock"] > div[style*="border"],
-    .element-container:has(.stMarkdown) {
+    div[data-testid="stVerticalBlock"] > div[style*="border"] {
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
     }
 
-    /* Forçar containers/cartões internos a ocuparem 100% sem compressão lateral */
     @media (max-width: 768px) {
         div[data-testid="stVerticalBlockBorderWrapper"] {
-            padding: 0.5rem !important;
-            margin: 0 auto !important;
+            padding: 0.8rem 0.5rem !important;
             width: 100% !important;
         }
 
-        /* Ajuste de formulários e botões móveis */
-        div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            gap: 0.5rem !important;
+        div[data-testid="stForm"], 
+        .element-container, 
+        .stMarkdown {
             width: 100% !important;
-        }
-
-        div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-            width: 50% !important;
-            min-width: 50% !important;
-            flex: 1 1 50% !important;
         }
     }
 
-    /* 4. PADRONIZAÇÃO DE BOTÕES DA APLICAÇÃO */
+    /* 6. ESTILIZAÇÃO PADRÃO DE BOTÕES */
     button,
     button[kind="secondary"],
     button[kind="primary"],
     div[data-testid="stFormSubmitButton"] > button,
     div[data-testid="stBaseButton-secondary"] > button,
-    div[data-testid="stBaseButton-primary"] > button,
-    [data-testid="baseButton-secondary"],
-    [data-testid="baseButton-primary"] {
+    div[data-testid="stBaseButton-primary"] > button {
         background-color: #FFFFFF !important;
         background: #FFFFFF !important;
         color: #212529 !important;
@@ -247,107 +264,13 @@ st.markdown("""
         border-radius: 8px !important;
         font-weight: 600 !important;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-        transition: all 0.2s ease !important;
     }
 
-    button:hover, button:active, button:focus,
-    div[data-testid="stFormSubmitButton"] > button:hover {
+    button:hover, button:active, button:focus {
         background-color: #E2E6EA !important;
-        background: #E2E6EA !important;
         color: #212529 !important;
         -webkit-text-fill-color: #212529 !important;
         border-color: #ADB5BD !important;
-    }
-
-    button p, button span, button div,
-    div[data-testid="stFormSubmitButton"] button p,
-    div[data-testid="stFormSubmitButton"] button span {
-        color: #212529 !important;
-        -webkit-text-fill-color: #212529 !important;
-        font-weight: 600 !important;
-    }
-
-    /* 5. CAMPOS DE TEXTO E ENTRADAS */
-    div[data-testid="stForm"] {
-        background-color: #FFFFFF !important;
-        border: 1px solid #E0E0E0 !important;
-        border-radius: 12px !important;
-        padding: 1.25rem !important;
-        width: 100% !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
-    }
-
-    div[data-testid="stTextInput"] label,
-    div[data-testid="stTextInput"] label p,
-    div[data-testid="stWidgetLabel"] label,
-    div[data-testid="stWidgetLabel"] p {
-        color: #212529 !important;
-        -webkit-text-fill-color: #212529 !important;
-        font-weight: 600 !important;
-    }
-
-    div[data-testid="stTextInput"] div[data-baseweb="input"],
-    div[data-testid="stTextInput"] input {
-        background-color: #F0F2F6 !important;
-        background: #F0F2F6 !important;
-        color: #212529 !important;
-        -webkit-text-fill-color: #212529 !important;
-        border-radius: 8px !important;
-    }
-
-    /* 6. CONTEÚDO DO POPOVER (MENU SUSPENSO CINZA CLARO / LETRAS PRETAS) */
-    div[data-testid="stPopoverBody"],
-    div[data-baseweb="popover"],
-    div[data-baseweb="popover"] > div,
-    [data-baseweb="popover"] [data-testid="stVerticalBlock"] {
-        background-color: #F0F2F6 !important;
-        background: #F0F2F6 !important;
-        border: 1px solid #CED4DA !important;
-        border-radius: 12px !important;
-        color: #212529 !important;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    div[data-testid="stPopoverBody"] p,
-    div[data-testid="stPopoverBody"] span,
-    div[data-testid="stPopoverBody"] div,
-    div[data-testid="stPopoverBody"] label,
-    div[data-testid="stPopoverBody"] strong {
-        color: #212529 !important;
-        -webkit-text-fill-color: #212529 !important;
-    }
-
-    div[data-testid="stPopoverBody"] hr {
-        border-color: #CED4DA !important;
-        margin: 0.6rem 0 !important;
-    }
-
-    div[data-testid="stPopoverBody"] button {
-        background-color: #FFFFFF !important;
-        color: #212529 !important;
-        -webkit-text-fill-color: #212529 !important;
-        border: 1px solid #CED4DA !important;
-        border-radius: 8px !important;
-        text-align: left !important;
-        justify-content: flex-start !important;
-        align-items: center !important;
-        padding: 0.5rem 0.8rem !important;
-        width: 100% !important;
-    }
-
-    div[data-testid="stPopoverBody"] button p,
-    div[data-testid="stPopoverBody"] button span {
-        text-align: left !important;
-        justify-content: flex-start !important;
-        width: 100% !important;
-        color: #212529 !important;
-        -webkit-text-fill-color: #212529 !important;
-    }
-
-    div[data-testid="stPopoverBody"] button[kind="primary"],
-    div[data-testid="stPopoverBody"] button[data-testid="stBaseButton-primary"] {
-        background-color: #E2E6EA !important;
-        border: 1.5px solid #6C757D !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -690,10 +613,10 @@ def classes_screen(): st.info("📌 Módulo de Classes em desenvolvimento.")
 def relatorios_screen(): st.info("📌 Módulo de Relatórios em desenvolvimento.")
 
 # ==============================================================================
-# PAINEL PRINCIPAL
+# PAINEL PRINCIPAL (DASHBOARD)
 # ==============================================================================
 def dashboard_screen():
-    """Exibe a tela principal com a logo em 1/3 e o popover colado à extrema direita."""
+    """Exibe o painel principal com o botão de Menu à extrema direita."""
     user_info = st.session_state.user or {}
     eh_admin = user_info.get('Adm') == 'S'
     
@@ -706,8 +629,7 @@ def dashboard_screen():
     server_name_20 = server_name_full[:20]
     user_name = user_info.get('Nome') or user_info.get('Login') or 'Usuário'
 
-    # Divisão 1:2 (33% para logo, 66% para a célula do menu)
-    col_logo, col_menu = st.columns([1, 2], vertical_alignment="center")
+    col_logo, col_menu = st.columns([45, 55], vertical_alignment="center")
     
     with col_logo:
         if os.path.exists("LogoIntegra.png"):
@@ -716,7 +638,6 @@ def dashboard_screen():
             st.markdown("**🔗 Integra**")
             
     with col_menu:
-        # Popover alinhado à extrema direita dentro da célula
         with st.popover("Menu", use_container_width=False):
             for opcao in menu_keys:
                 is_active = (st.session_state.menu_option == opcao)
