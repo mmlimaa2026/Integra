@@ -18,12 +18,10 @@ import streamlit.components.v1 as components
 # ==============================================================================
 logger = logging.getLogger(__name__)
 
-# Importação dos módulos das demais telas da aplicação
 from acolhimentos import acolhimento_screen
 from home import home_screen
 from administracao import administracao_screen
 
-# Configuração da aba do navegador e do layout principal
 st.set_page_config(
     page_title="Integra | Sistema de Novos Membros",
     page_icon="🔗",
@@ -79,11 +77,9 @@ if 'menu_option' not in st.session_state:
 if 'is_mobile' not in st.session_state:
     st.session_state.is_mobile = False
 
-# Estado de erro para o formulário de login
 if 'login_error' not in st.session_state:
     st.session_state.login_error = False
 
-# Controle de alertas do formulário de solicitação de acesso
 if 'temp_alert_message' not in st.session_state:
     st.session_state.temp_alert_message = None
 if 'temp_alert_type' not in st.session_state:
@@ -112,11 +108,11 @@ if not st.session_state.is_mobile:
         st.session_state.is_mobile = True
 
 # ==============================================================================
-# CSS CUSTOMIZADO: CORREÇÃO DO MENU POPOVER (CINZA CLARO, TEXTO PRETO E ALINHAMENTO)
+# CSS CUSTOMIZADO UNIFICADO: CORREÇÃO COMPLETA DE BOTÕES, FORMULÁRIO E POPOVER
 # ==============================================================================
 st.markdown("""
     <style>
-    /* 1. CONFIGURAÇÕES GERAIS DE TEMA CLARO */
+    /* 1. FORÇAR TEMA CLARO GLOBAL (SOBRESCREVE MODO ESCURO DO ANDROID/SAFARI) */
     :root {
         color-scheme: light !important;
         --text-color: #212529 !important;
@@ -140,7 +136,6 @@ st.markdown("""
         box-sizing: border-box !important;
     }
 
-    /* Oculta elementos nativos do Streamlit */
     header[data-testid="stHeader"], [data-testid="stHeader"], .stDeployButton, #MainMenu, footer {
         display: none !important;
         height: 0px !important;
@@ -158,7 +153,49 @@ st.markdown("""
         box-sizing: border-box !important;
     }
 
-    /* Form do login */
+    /* 2. CORREÇÃO DEFINITIVA DE TODOS OS BOTÕES (LOGIN, FORMULÁRIOS E GERAIS) */
+    button,
+    button[kind="secondary"],
+    button[kind="primary"],
+    div[data-testid="stFormSubmitButton"] > button,
+    div[data-testid="stBaseButton-secondary"] > button,
+    div[data-testid="stBaseButton-primary"] > button,
+    [data-testid="baseButton-secondary"],
+    [data-testid="baseButton-primary"] {
+        background-color: #FFFFFF !important;
+        background: #FFFFFF !important;
+        color: #212529 !important;
+        -webkit-text-fill-color: #212529 !important;
+        border: 1px solid #CED4DA !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* Estado de Hover / Toque nos botões */
+    button:hover,
+    button:active,
+    button:focus,
+    div[data-testid="stFormSubmitButton"] > button:hover,
+    div[data-testid="stFormSubmitButton"] > button:active {
+        background-color: #E2E6EA !important;
+        background: #E2E6EA !important;
+        color: #212529 !important;
+        -webkit-text-fill-color: #212529 !important;
+        border-color: #ADB5BD !important;
+    }
+
+    /* Garantir cor preta para textos e ícones dentro de botões */
+    button p, button span, button div,
+    div[data-testid="stFormSubmitButton"] button p,
+    div[data-testid="stFormSubmitButton"] button span {
+        color: #212529 !important;
+        -webkit-text-fill-color: #212529 !important;
+        font-weight: 600 !important;
+    }
+
+    /* 3. CAMPOS DE TEXTO E INPUTS DO FORMULÁRIO */
     div[data-testid="stForm"] {
         background-color: #FFFFFF !important;
         border: 1px solid #E0E0E0 !important;
@@ -183,9 +220,10 @@ st.markdown("""
         background: #F0F2F6 !important;
         color: #212529 !important;
         -webkit-text-fill-color: #212529 !important;
+        border-radius: 8px !important;
     }
 
-    /* 2. ESTILIZAÇÃO DO CONTAINER FLUTUANTE DO POPOVER (MENU SUSPENSO) */
+    /* 4. POPOVER (MENU SUSPENSO NO CELULAR) - FUNDO CINZA CLARO E TEXTO PRETO */
     div[data-testid="stPopoverBody"],
     div[data-baseweb="popover"],
     div[data-baseweb="popover"] > div,
@@ -198,7 +236,7 @@ st.markdown("""
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
     }
 
-    /* Textos dentro da Popover em preto */
+    /* Textos internos da Popover */
     div[data-testid="stPopoverBody"] p,
     div[data-testid="stPopoverBody"] span,
     div[data-testid="stPopoverBody"] div,
@@ -208,13 +246,13 @@ st.markdown("""
         -webkit-text-fill-color: #212529 !important;
     }
 
-    /* Linha divisória interna do Popover */
+    /* Linha divisória da Popover */
     div[data-testid="stPopoverBody"] hr {
         border-color: #CED4DA !important;
         margin: 0.6rem 0 !important;
     }
 
-    /* 3. BOTÕES INTERNOS DO POPOVER: ALINHADOS À ESQUERDA COM LETRAS PRETAS */
+    /* Botões dentro da Popover: Alinhados à Esquerda com Letras Pretas */
     div[data-testid="stPopoverBody"] button {
         background-color: #FFFFFF !important;
         color: #212529 !important;
@@ -224,15 +262,10 @@ st.markdown("""
         text-align: left !important;
         justify-content: flex-start !important;
         align-items: center !important;
-        font-weight: 600 !important;
-        font-size: 0.95rem !important;
         padding: 0.5rem 0.8rem !important;
         width: 100% !important;
-        box-shadow: none !important;
-        transition: all 0.2s ease !important;
     }
 
-    /* Garante alinhamento à esquerda dos textos dos botões na Popover */
     div[data-testid="stPopoverBody"] button p,
     div[data-testid="stPopoverBody"] button span {
         text-align: left !important;
@@ -242,22 +275,14 @@ st.markdown("""
         -webkit-text-fill-color: #212529 !important;
     }
 
-    /* Estado de Hover e Botão Ativo dentro do Popover */
-    div[data-testid="stPopoverBody"] button:hover {
-        background-color: #E2E6EA !important;
-        border-color: #ADB5BD !important;
-        color: #212529 !important;
-    }
-
+    /* Botão selecionado dentro da Popover */
     div[data-testid="stPopoverBody"] button[kind="primary"],
     div[data-testid="stPopoverBody"] button[data-testid="stBaseButton-primary"] {
         background-color: #E2E6EA !important;
         border: 1.5px solid #6C757D !important;
-        color: #212529 !important;
-        font-weight: 700 !important;
     }
 
-    /* 4. POSICIONAMENTO DO CABEÇALHO PARA EMPURRAR O POPOVER PARA A DIREITA DA TELA */
+    /* 5. POPOVER EMPURRADO PARA O LIMITE DIREITO DA TELA */
     div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) {
         display: flex !important;
         flex-direction: row !important;
@@ -267,7 +292,6 @@ st.markdown("""
         width: 100% !important;
     }
 
-    /* Alinha a coluna que contém o Popover totalmente à direita */
     div[data-testid="stHorizontalBlock"]:has(div[data-testid="stPopover"]) > div[data-testid="stColumn"]:last-child {
         display: flex !important;
         justify-content: flex-end !important;
@@ -275,23 +299,13 @@ st.markdown("""
         margin-left: auto !important;
     }
 
-    /* Botão disparador da Popover */
     div[data-testid="stPopover"] {
         display: flex !important;
         justify-content: flex-end !important;
         width: 100% !important;
     }
 
-    div[data-testid="stPopover"] > button {
-        background-color: #FFFFFF !important;
-        color: #212529 !important;
-        border: 1px solid #CED4DA !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
-        padding: 6px 16px !important;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
-    }
-
+    /* Ajuste para dispositivos móveis */
     @media (max-width: 768px) {
         div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
             display: flex !important;
@@ -337,7 +351,7 @@ def connect_to_database():
         return None, "Falha ao conectar com o servidor do banco de dados."
 
 def get_table_structure(conn):
-    """Mapeia os campos e chave primária da tabela SolicitacaoAcesso."""
+    """Mapeia a estrutura da tabela SolicitacaoAcesso."""
     try:
         cursor = conn.cursor()
         cursor.execute("""
@@ -381,7 +395,7 @@ def buscar_usuario_por_login(conn, login):
         return None
 
 def autenticar_usuario(conn, login, senha):
-    """Valida as credenciais digitadas no formulário contra o banco de dados."""
+    """Valida as credenciais enviadas contra o banco de dados."""
     usuario = buscar_usuario_por_login(conn, login)
     if not usuario:
         return None, "Login inválido."
@@ -392,7 +406,7 @@ def autenticar_usuario(conn, login, senha):
         return None, "Senha incorreta."
 
 def enviar_email_notificacao(nome, email, celular):
-    """Envia um e-mail informando os administradores sobre a nova solicitação de acesso."""
+    """Envia um e-mail de notificação de nova solicitação."""
     email_config = get_email_config()
     if not email_config:
         return False, "Configurações de e-mail ausentes."
@@ -425,7 +439,7 @@ def enviar_email_notificacao(nome, email, celular):
         return False, "Erro ao processar o envio de e-mail."
 
 def gravar_solicitacao(conn, nome, email, celular):
-    """Insere um novo registro de solicitação de acesso na tabela SolicitacaoAcesso."""
+    """Grava o registro de solicitação no banco."""
     try:
         cursor = conn.cursor()
         data_atual = datetime.now()
@@ -442,8 +456,8 @@ def gravar_solicitacao(conn, nome, email, celular):
         
         columns = st.session_state.table_columns
         id_column = st.session_state.id_column
-        
         col_names = [col['name'] for col in columns]
+        
         insert_fields = []
         insert_values = []
         insert_params = []
@@ -480,7 +494,7 @@ def gravar_solicitacao(conn, nome, email, celular):
         return False, "Erro interno ao gravar solicitação."
 
 def logout():
-    """Encerra a sessão ativa do usuário e limpa o st.session_state."""
+    """Encerra a sessão e limpa as variáveis."""
     if st.session_state.conn:
         try:
             st.session_state.conn.close()
@@ -509,7 +523,7 @@ MENU_ICONS = {
 # TELA DE LOGIN E SOLICITAÇÃO DE ACESSO
 # ==============================================================================
 def login_screen():
-    """Gera a interface de login centralizada e alinhada para desktop e smartphones."""
+    """Interface de Login com botões forçados para fundo claro e letras pretas."""
     if st.session_state.is_mobile:
         col_left, col_center, col_right = st.columns([0.02, 0.96, 0.02])
     else:
@@ -526,7 +540,7 @@ def login_screen():
             
         st.markdown('<p style="color: #495057 !important; text-align: center; font-size: 0.9rem; margin-top: 0.5rem; margin-bottom: 1rem;">Entre com seu login e senha abaixo:</p>', unsafe_allow_html=True)
         
-        # FORMULÁRIO DE AUTENTICAÇÃO
+        # FORMULÁRIO DE LOGIN
         with st.form("login_form", clear_on_submit=False):
             login = st.text_input("Login", max_chars=20, placeholder="", key="login_input")
             senha = st.text_input("Senha", type="password", max_chars=20, placeholder="", key="password_input")
@@ -540,7 +554,7 @@ def login_screen():
                 request_button = st.form_submit_button("📝 Solicitar Acesso", use_container_width=True)
             
             if st.session_state.login_error:
-                st.markdown('<p class="login-error-msg">Usuário não autorizado.</p>', unsafe_allow_html=True)
+                st.markdown('<p style="color: #DC3545 !important; text-align: center; font-weight: bold; margin-top: 10px;">Usuário não autorizado.</p>', unsafe_allow_html=True)
 
             if connect_button:
                 st.session_state.login_error = False
@@ -578,7 +592,7 @@ def login_screen():
                 st.session_state.login_error = False
                 st.rerun()
         
-        # FORMULÁRIO COMPLEMENTAR DE SOLICITAÇÃO DE ACESSO
+        # FORMULÁRIO DE SOLICITAÇÃO
         if st.session_state.show_request_form:
             st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
             st.markdown("### 📝 Solicitar Acesso ao Sistema")
@@ -643,19 +657,17 @@ def login_screen():
                             st.session_state.temp_alert_type = "error"
                             st.rerun()
 
-# Placeholders para módulos em desenvolvimento
 def classes_screen(): st.info("📌 Módulo de Classes em desenvolvimento.")
 def relatorios_screen(): st.info("📌 Módulo de Relatórios em desenvolvimento.")
 
 # ==============================================================================
-# PAINEL PRINCIPAL (DASHBOARD PÓS-LOGIN - RECONSTRUÇÃO DO CABEÇALHO COM COLUNAS)
+# PAINEL PRINCIPAL (CABEÇALHO COM POPOVER NA EXTREMIDADE DIREITA DA TELA)
 # ==============================================================================
 def dashboard_screen():
-    """Monta o cabeçalho pós-login utilizando colunas para posicionar o Popover na extremidade direita."""
+    """Exibe a tela principal com o popover no limite direito."""
     user_info = st.session_state.user or {}
     eh_admin = user_info.get('Adm') == 'S'
     
-    # Mapeamento de opções do menu principal
     menu_keys = ["Home", "Acolhimento", "Classes", "Relatórios"]
     if eh_admin:
         menu_keys.append("Administração")
@@ -665,7 +677,7 @@ def dashboard_screen():
     server_name_20 = server_name_full[:20]
     user_name = user_info.get('Nome') or user_info.get('Login') or 'Usuário'
 
-    # Estrutura de 4 colunas no cabeçalho: 1.5 (logo), 1 (espaçador), 1 (espaçador) e 1.5 (menu no limite direito)
+    # Multi-colunas com espaçadores para empurrar a quarta coluna com o popover até a margem direita
     col_logo, col_space1, col_space2, col_menu = st.columns([1.5, 1.0, 1.0, 1.5], vertical_alignment="center")
     
     with col_logo:
@@ -675,9 +687,9 @@ def dashboard_screen():
             st.markdown("**🔗 Integra**")
             
     with col_menu:
-        # Popover posicionado no limite direito do celular
+        # Popover configurado no limite direito
         with st.popover("Menu", use_container_width=False):
-            # Botões do menu alinhados à esquerda dentro do popover com letras pretas
+            # Botões alinhados à esquerda com letras pretas
             for opcao in menu_keys:
                 is_active = (st.session_state.menu_option == opcao)
                 btn_type = "primary" if is_active else "secondary"
@@ -686,7 +698,6 @@ def dashboard_screen():
                     st.rerun()
             
             st.markdown("---")
-            # Informações de usuário e servidor na base da popover
             st.markdown(f"**Usuário:** {user_name}")
             st.markdown(f"**Servidor:** {server_name_20}")
             st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
@@ -695,7 +706,6 @@ def dashboard_screen():
 
     st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
 
-    # Exibição do módulo selecionado
     if st.session_state.menu_option == "Home":
         home_screen()
     elif st.session_state.menu_option == "Acolhimento":
